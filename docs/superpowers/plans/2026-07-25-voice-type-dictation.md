@@ -280,7 +280,7 @@ git commit -m "feat: vocab_store with terms, replacements and JSON persistence"
   - `fn apply(raw: &str, replacements: &[Replacement]) -> String`
   - `fn join_segments(prev: &str, next: &str) -> String` (une con espacio y capitaliza inicio de oración)
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 ```rust
 #[cfg(test)]
@@ -312,12 +312,12 @@ mod tests {
 }
 ```
 
-- [ ] **Step 2: Correr el test para verificar que falla**
+- [x] **Step 2: Correr el test para verificar que falla**
 
 Run: `cargo test -p voice-type post_processor`
 Expected: FALLA (funciones no definidas).
 
-- [ ] **Step 3: Implementación mínima**
+- [x] **Step 3: Implementación mínima**
 
 ```rust
 use crate::vocab_store::Replacement;
@@ -375,12 +375,12 @@ fn capitalize_first(s: &str) -> String {
 }
 ```
 
-- [ ] **Step 4: Correr los tests**
+- [x] **Step 4: Correr los tests**
 
 Run: `cargo test -p voice-type post_processor`
 Expected: PASA.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src-tauri/src/post_processor.rs src-tauri/src/lib.rs

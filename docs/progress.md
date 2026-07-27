@@ -25,7 +25,7 @@ ALSA**. El objetivo del producto sigue siendo Windows 11. Consecuencia práctica
 |---|---|---|---|
 | 1 | Scaffold Tauri v2 + Svelte | Hecho (falta Step 3) | `vite build`, `vitest`, `svelte-check`, `cargo test --no-default-features` |
 | 2 | `vocab_store` | Hecho | 6 tests unitarios |
-| 3 | `post_processor` | Pendiente | — |
+| 3 | `post_processor` | Hecho | 9 tests unitarios |
 | 4 | `ipc` | Pendiente | — |
 | 5 | `config` | Pendiente | — |
 | 6 | Sidecar STT (whisper-rs) | Pendiente | Requiere CUDA |
@@ -98,4 +98,24 @@ conservar varias formas mal escuchadas del mismo término.
 ```
 cargo test -p voice-type --no-default-features vocab_store  → 6 passed
 cargo clippy ... -D warnings                                → sin warnings
+```
+
+### Task 3 — `post_processor`
+
+**Qué se hizo.** `apply()` (reemplazos del vocabulario por palabra completa,
+sin distinguir mayúsculas) y `join_segments()` (une segmentos y capitaliza
+después de `.`, `!` o `?`).
+
+**Desvío respecto del plan.** El snippet del plan indexaba el texto original con
+posiciones calculadas sobre su versión en minúsculas. En español eso rompe: `ó`
+ocupa dos bytes y `to_lowercase()` puede cambiar el largo, así que el corte cae
+en medio de un carácter y revienta. La implementación recorre caracteres, no
+bytes, y hay un test con `CANCIÓN` que fija el caso. También se cubrió el
+`heard` vacío, que con el algoritmo del plan era un bucle infinito.
+
+**Pruebas ejecutadas.**
+
+```
+cargo test -p voice-type --no-default-features post_processor  → 9 passed
+cargo clippy ... -D warnings                                   → sin warnings
 ```
