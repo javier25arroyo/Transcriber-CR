@@ -26,7 +26,7 @@ open-source utilizable por terceros.
 | Decisión | Valor |
 |---|---|
 | Visibilidad del repo | Público desde el primer push |
-| Nombre del repo | `voice-type` |
+| Nombre del repo | `Transcriber-CR` (ya creado en GitHub; el nombre del producto sigue siendo "Voice Type", el nombre del crate Rust sigue siendo `voice-type` — son tres identificadores independientes) |
 | Licencia | MIT |
 | Flujo de trabajo | Una rama por task + Pull Request a `main` |
 | CI | GitHub Actions liviano: sin GPU, sin CUDA |
@@ -249,8 +249,8 @@ diagnosticar.
 
 1. `git init`, `.gitignore`, commit inicial con los `docs/` que ya existen.
 2. Documentos raíz, ADRs y `.github/` → commit.
-3. Crear el repo `voice-type` en GitHub, push, activar protección de `main`
-   requiriendo CI en verde.
+3. Repo `Transcriber-CR` en GitHub (ya creado y con remoto configurado), push,
+   activar protección de `main` requiriendo CI en verde.
 4. Recién entonces, Task 1 del plan de implementación (scaffold Tauri).
 
 El orden importa: la protección de rama se configura antes de la primera rama de

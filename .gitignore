@@ -1,0 +1,37 @@
+# Rust
+/target/
+**/target/
+Cargo.lock.bak
+
+# Node / frontend
+node_modules/
+dist/
+.vite/
+
+# Tauri build output
+src-tauri/target/
+src-tauri/gen/
+
+# Whisper models — downloaded at runtime, hundreds of MB each
+models/
+*.bin
+
+# Logs
+logs/
+*.log
+
+# App config/state written by the app while developing
+.voice-type/
+vocab.json
+config.json
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local

@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  rust:
+    name: Rust (fmt, clippy, tests)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo registry and build
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      # Only the voice-type package: stt-sidecar depends on whisper-rs with
+      # the `cuda` feature, which needs the CUDA Toolkit — not available on
+      # GitHub-hosted runners. See docs/adr/0001-isolated-stt-sidecar.md.
+      - name: Clippy (voice-type only, no GPU crate)
+        run: cargo clippy -p voice-type --all-targets -- -D warnings
+
+      - name: Test (voice-type only, no GPU crate)
+        run: cargo test -p voice-type
+
+  frontend:
+    name: Frontend (vitest, svelte-check)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Unit tests
+        run: npx vitest run
+
+      - name: Svelte type check
+        run: npx svelte-check
