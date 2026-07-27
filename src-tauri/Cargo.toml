@@ -1,0 +1,43 @@
+[package]
+name = "voice-type"
+description = "Voice Type — dictado por voz local para Windows 11"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[lib]
+name = "voice_type"
+path = "src/lib.rs"
+
+[[bin]]
+name = "voice-type"
+path = "src/main.rs"
+# La app sólo se construye con la feature `app`; ver la nota de [features].
+required-features = ["app"]
+
+[features]
+default = ["app"]
+# `app` agrega todo lo que necesita la aplicación Tauri real (WebView2 en
+# Windows, WebKitGTK en Linux) más el `tauri-build` que genera el contexto a
+# partir de `tauri.conf.json`.
+#
+# Sin esta feature el crate compila solamente la librería `voice_type`: módulos
+# puros y deterministas (config, vocab_store, post_processor, ipc, vad,
+# text_injector, supervisor) que no dependen de ningún toolkit gráfico. Eso
+# permite `cargo test -p voice-type --no-default-features` en cualquier máquina
+# sin instalar las dependencias de sistema de Tauri — ver CONTRIBUTING.md
+# ("Running tests"). El build completo de la app sigue siendo Windows 11.
+app = ["dep:tauri", "dep:tauri-build"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri = { version = "2", optional = true }
+
+[build-dependencies]
+tauri-build = { version = "2", features = [], optional = true }
+
+[dev-dependencies]
+tempfile = "3"

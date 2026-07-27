@@ -1,0 +1,13 @@
+[workspace]
+members = ["src-tauri"]
+resolver = "2"
+
+# `stt-sidecar` se agrega como miembro en la Task 6 del plan de implementación,
+# cuando exista el crate. Declararlo antes rompe cualquier comando de cargo.
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+authors = ["Javier Pérez Arroyo"]
+repository = "https://github.com/javier25arroyo/Transcriber-CR"
