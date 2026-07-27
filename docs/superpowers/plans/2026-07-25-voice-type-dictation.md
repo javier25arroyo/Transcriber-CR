@@ -97,16 +97,19 @@ members = ["src-tauri", "stt-sidecar"]
 resolver = "2"
 ```
 
-- [ ] **Step 3: Ejecutar en dev para confirmar que abre**
+- [x] **Step 3: Ejecutar en dev para confirmar que abre**
 
-Run: `npm run tauri dev`
+Run: `pnpm tauri dev`
 Expected: abre una ventana de Tauri sin errores. Cerrar.
 
-> **Pendiente de verificación manual en Windows 11.** El scaffold se creó a
-> mano (el generador `npm create tauri-app` es interactivo y la carpeta ya
-> tenía `docs/`). Lo verificado automáticamente hasta ahora: `npm run build`,
-> `npx vitest run`, `npx svelte-check` y
-> `cargo test -p voice-type --no-default-features`. Ver
+> **Verificado en Windows 11 (2026-07-27).** Encontró un bug real: el crate
+> tiene dos `[[bin]]` (`voice-type` y `echo-sidecar`, el sidecar de mentira de
+> los tests de integración), y `cargo run` — que `tauri dev` invoca sin
+> `--bin` — no podía elegir entre los dos (`error: cargo run could not
+> determine which binary to run`). Arreglado con `default-run = "voice-type"`
+> en `[package]` de `src-tauri/Cargo.toml`, tal como sugería el propio mensaje
+> de error. Con eso, compiló y la píldora abrió: translúcida, "Dictado
+> apagado", botón "+", confirmado por captura de pantalla. Ver
 > [docs/progress.md](../../progress.md).
 
 - [x] **Step 4: Retirar las guardas temporales del CI**

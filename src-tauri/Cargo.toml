@@ -6,6 +6,10 @@ edition.workspace = true
 license.workspace = true
 authors.workspace = true
 repository.workspace = true
+# El crate tiene dos binarios (ver [[bin]] más abajo): `echo-sidecar` es un
+# sidecar de mentira sólo para tests de integración. `cargo run` (que
+# `tauri dev` invoca sin `--bin`) no puede elegir entre los dos sin esto.
+default-run = "voice-type"
 
 [lib]
 name = "voice_type"

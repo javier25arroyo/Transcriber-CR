@@ -23,7 +23,7 @@ ALSA**. El objetivo del producto sigue siendo Windows 11. Consecuencia práctica
 
 | Task | Módulo | Estado | Verificación |
 |---|---|---|---|
-| 1 | Scaffold Tauri v2 + Svelte | Hecho (falta Step 3) | `vite build`, `vitest`, `svelte-check`, `cargo test --no-default-features` |
+| 1 | Scaffold Tauri v2 + Svelte | **Hecho, Step 3 verificado en Windows** | `vite build`, `vitest`, `svelte-check`, `cargo test` (con y sin `--no-default-features`), `pnpm tauri dev` abrió la ventana |
 | 2 | `vocab_store` | Hecho | 6 tests unitarios |
 | 3 | `post_processor` | Hecho | 9 tests unitarios |
 | 4 | `ipc` | Hecho | 5 tests unitarios |
@@ -43,9 +43,8 @@ ALSA**. El objetivo del producto sigue siendo Windows 11. Consecuencia práctica
 
 Ordenado por lo que desbloquea más:
 
-1. **Task 1, step 3** — `npm run tauri dev` tiene que abrir la ventana. Es la
-   primera confirmación de que el scaffold está bien; todo lo de UI depende de
-   esto.
+1. ~~**Task 1, step 3** — `pnpm tauri dev` tiene que abrir la ventana.~~ **Hecho
+   el 2026-07-27**: ver la entrada de la Task 1 más abajo.
 2. **Task 6** — implementar `Engine` con `whisper-rs`. El protocolo, el loop de
    IPC y el heartbeat ya están y testeados; lo único que falta es la llamada a
    whisper.cpp detrás del trait, con la feature `whisper`.
@@ -99,9 +98,25 @@ cargo clippy -p voice-type --no-default-features --all-targets -- -D warnings �
 cargo test -p voice-type --no-default-features             → OK
 ```
 
-**Pendiente de verificación manual (Windows 11).** Step 3 del plan:
-`npm run tauri dev` tiene que abrir la ventana. El bundle está desactivado
-(`bundle.active: false`) hasta la Task 15, que es la que agrega los iconos.
+**Step 3 verificado en Windows 11 (2026-07-27).** `pnpm tauri dev` no abría:
+`cargo run` (que Tauri invoca sin `--bin`) no podía elegir entre los dos
+binarios del crate (`voice-type` y `echo-sidecar`, el sidecar de mentira de
+los tests de integración de la Task 9). Fix de una línea, sugerido por el
+propio mensaje de error de Cargo: `default-run = "voice-type"` en
+`[package]` de `src-tauri/Cargo.toml`. Con eso, ventana abierta, píldora
+translúcida con "Dictado apagado" y el botón "+", confirmado por captura de
+pantalla. El bundle sigue desactivado (`bundle.active: false`) hasta la
+Task 15, que es la que agrega los iconos.
+
+**Entorno verificado en esta pasada (Windows 11, RTX 4060 Laptop 8 GB VRAM).**
+Rust (rustup, toolchain stable-msvc), Node 22 y pnpm 9.15.4 ya estaban o se
+instalaron; VS 2022 Community trae el toolset de C++ que el linker de Rust
+necesita, y WebView2 Runtime ya estaba presente. CUDA Toolkit **no** se instaló
+todavía: no hace falta para nada de lo hecho hasta ahora — la feature
+`whisper` de `stt-sidecar` ni siquiera declara la dependencia real todavía
+(ver Task 6 más abajo). Con eso: `cargo test -p voice-type` (con y sin
+`--no-default-features`) y `cargo test -p stt-sidecar` — 85 tests en total —
+más `pnpm test` y `pnpm check` en el frontend, todo en verde en esta máquina.
 
 ### Task 2 — `vocab_store`
 
