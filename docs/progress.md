@@ -32,7 +32,7 @@ ALSA**. El objetivo del producto sigue siendo Windows 11. Consecuencia práctica
 | 7 | `audio` | Pendiente | Requiere micrófono |
 | 8 | `vad` | Hecho | 8 tests unitarios |
 | 9 | `supervisor` | Hecho | 8 unitarios + 4 de integración con procesos reales |
-| 10 | `text_injector` | Pendiente | Requiere Windows |
+| 10 | `text_injector` | Lógica hecha | 4 tests unitarios; el pegado real queda pendiente |
 | 11 | `pipeline` | Pendiente | — |
 | 12 | Hotkeys + comandos | Pendiente | Requiere Windows |
 | 13 | `PillWidget` | Pendiente | Verificación visual |
@@ -240,3 +240,35 @@ Los 4 de integración levantan procesos de verdad (`tests/bin/echo_sidecar.rs`,
 que habla el mismo protocolo sin modelo ni GPU): spawn e ida y vuelta por IPC,
 detección de proceso muerto, un reemplazo que vuelve a atender pedidos, y un
 binario inexistente que da error en vez de panic.
+
+### Task 10 — `text_injector`
+
+**Qué se hizo.** El trait `Clipboard`, la función `inject()` (guardar, poner el
+texto, pegar, restaurar) y —detrás de la feature `app`— `SystemClipboard`
+(arboard) y `paste_ctrl_v` (enigo).
+
+**Decisiones.**
+
+- *`inject` no duerme ni pega por sí misma.* Recibe el pegado como closure, así
+  que el algoritmo —que es el que puede arruinarle el portapapeles al usuario—
+  se testea entero sin tocar el portapapeles real. La espera de 120 ms que
+  necesita la app destino para leer el portapapeles vive en `paste_ctrl_v`.
+- *Un portapapeles vacío se restaura vacío*, no se deja la transcripción ahí. Es
+  texto dictado por el usuario; no tiene por qué quedar disponible después.
+- *Texto vacío es un no-op*: no pisa el portapapeles ni manda un Ctrl+V al vacío.
+
+**Pruebas ejecutadas.**
+
+```
+cargo test -p voice-type --no-default-features text_injector  → 4 passed
+cargo clippy ... -D warnings                                  → sin warnings
+```
+
+Uno de los tests mira el portapapeles *desde adentro* del pegado (estado
+compartido con `Rc<RefCell<_>>`) para fijar el orden real de las operaciones, no
+sólo que la closure se haya llamado.
+
+**Pendiente de verificación manual (Windows 11).** El pegado de verdad
+(`paste_ctrl_v` + `SystemClipboard`) y el ejemplo `inject_probe` del Step 5:
+`arboard` y `enigo` sólo entran con la feature `app`, que no se puede compilar
+en este entorno Linux.

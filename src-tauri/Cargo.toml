@@ -36,12 +36,15 @@ default = ["app"]
 # permite `cargo test -p voice-type --no-default-features` en cualquier máquina
 # sin instalar las dependencias de sistema de Tauri — ver CONTRIBUTING.md
 # ("Running tests"). El build completo de la app sigue siendo Windows 11.
-app = ["dep:tauri", "dep:tauri-build"]
+app = ["dep:tauri", "dep:tauri-build", "dep:arboard", "dep:enigo"]
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tauri = { version = "2", optional = true }
+# Portapapeles y teclado sintético: sólo los usa la app real (ver text_injector).
+arboard = { version = "3", optional = true }
+enigo = { version = "0.6", optional = true }
 
 [build-dependencies]
 tauri-build = { version = "2", features = [], optional = true }

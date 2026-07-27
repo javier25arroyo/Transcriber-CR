@@ -1104,7 +1104,7 @@ git commit -m "feat: sidecar supervisor with spawn, IPC channels and liveness"
   - `fn inject<C: Clipboard>(cb: &mut C, paste: impl FnOnce(), text: &str)` — guarda actual, set `text`, `paste()`, restaura.
   - Impl real `SystemClipboard` (arboard) y `fn paste_ctrl_v()` (enigo).
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 ```rust
 #[cfg(test)]
@@ -1132,12 +1132,12 @@ mod tests {
 }
 ```
 
-- [ ] **Step 2: Correr el test para verificar que falla**
+- [x] **Step 2: Correr el test para verificar que falla**
 
 Run: `cargo test -p voice-type text_injector`
 Expected: FALLA.
 
-- [ ] **Step 3: Implementación mínima**
+- [x] **Step 3: Implementación mínima**
 
 ```rust
 pub trait Clipboard {
@@ -1173,7 +1173,7 @@ pub fn paste_ctrl_v() {
 
 Nota producción: entre `cb.set(text)` y restaurar, dormir ~120 ms para que la app destino procese el `Ctrl+V` antes de devolver el portapapeles original.
 
-- [ ] **Step 4: Correr tests unit**
+- [x] **Step 4: Correr tests unit**
 
 Run: `cargo test -p voice-type text_injector`
 Expected: PASA.
@@ -1181,6 +1181,11 @@ Expected: PASA.
 - [ ] **Step 5: Verificación manual**
 
 Ejemplo `examples/inject_probe.rs`: foco en el Bloc de notas, correr, debe aparecer "hola mundo" y el portapapeles quedar como estaba.
+
+> **Pendiente de verificación manual en Windows 11.** El ejemplo todavía no
+> existe: `arboard`/`enigo` sólo compilan con la feature `app`, que no se puede
+> construir en el entorno Linux donde se implementó el módulo. La lógica de
+> guardar/restaurar sí está testeada, con portapapeles de mentira.
 
 - [ ] **Step 6: Commit**
 
