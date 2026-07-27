@@ -75,7 +75,7 @@ Los módulos de `src-tauri/src` se exponen vía `lib.rs` para poder testearlos c
 **Interfaces:**
 - Produces: proyecto que compila y abre una ventana; base para todos los módulos.
 
-- [ ] **Step 1: Inicializar git y scaffold Tauri**
+- [x] **Step 1: Inicializar git y scaffold Tauri**
 
 Requisitos previos (instalar una sola vez): Rust (`rustup`), Node LTS, y para el sidecar CUDA: CUDA Toolkit 12.x. Verificar: `rustc --version`, `node --version`, `nvcc --version`.
 
@@ -87,7 +87,7 @@ npm create tauri-app@latest . -- --template svelte-ts --manager npm --yes
 
 Si el generador se niega por carpeta no vacía (existe `docs/`), crear en subcarpeta temporal y mover, o usar `--force`. Ajustar `src-tauri/tauri.conf.json` → `productName: "Voice Type"`, `identifier: "com.javier.voicetype"`.
 
-- [ ] **Step 2: Convertir a workspace y verificar build**
+- [x] **Step 2: Convertir a workspace y verificar build**
 
 Editar `Cargo.toml` raíz:
 
@@ -102,7 +102,14 @@ resolver = "2"
 Run: `npm run tauri dev`
 Expected: abre una ventana de Tauri sin errores. Cerrar.
 
-- [ ] **Step 4: Retirar las guardas temporales del CI**
+> **Pendiente de verificación manual en Windows 11.** El scaffold se creó a
+> mano (el generador `npm create tauri-app` es interactivo y la carpeta ya
+> tenía `docs/`). Lo verificado automáticamente hasta ahora: `npm run build`,
+> `npx vitest run`, `npx svelte-check` y
+> `cargo test -p voice-type --no-default-features`. Ver
+> [docs/progress.md](../../progress.md).
+
+- [x] **Step 4: Retirar las guardas temporales del CI**
 
 `Cargo.toml` y `package.json` ya existen. En `.github/workflows/ci.yml`,
 quitar los `if: hashFiles('Cargo.toml') != ''` y
@@ -112,7 +119,7 @@ quedara en rojo antes de que hubiera código — ver
 `docs/superpowers/specs/2026-07-26-sdlc-docs-design.md` §7). A partir de este
 commit, la ausencia de esos manifiestos debe volver a hacer fallar el CI.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A
@@ -140,7 +147,7 @@ git commit -m "ci: remove empty-repo guards now that manifests exist"
     - `fn add(&mut self, heard: &str, correct: &str)` (agrega término `correct` a `terms` sin duplicar, y una `Replacement`)
     - `fn initial_prompt(&self) -> String` (concatena términos para sesgo de whisper)
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 ```rust
 #[cfg(test)]
@@ -190,12 +197,12 @@ mod tests {
 
 Agregar `tempfile` a `[dev-dependencies]` en `src-tauri/Cargo.toml`.
 
-- [ ] **Step 2: Correr el test para verificar que falla**
+- [x] **Step 2: Correr el test para verificar que falla**
 
 Run: `cargo test -p voice-type vocab_store`
 Expected: FALLA (no compila: `Vocab` no existe).
 
-- [ ] **Step 3: Implementación mínima**
+- [x] **Step 3: Implementación mínima**
 
 ```rust
 use serde::{Deserialize, Serialize};
@@ -246,12 +253,12 @@ impl Vocab {
 }
 ```
 
-- [ ] **Step 4: Correr los tests**
+- [x] **Step 4: Correr los tests**
 
 Run: `cargo test -p voice-type vocab_store`
 Expected: PASA.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src-tauri/src/vocab_store.rs src-tauri/src/lib.rs src-tauri/Cargo.toml
@@ -273,7 +280,7 @@ git commit -m "feat: vocab_store with terms, replacements and JSON persistence"
   - `fn apply(raw: &str, replacements: &[Replacement]) -> String`
   - `fn join_segments(prev: &str, next: &str) -> String` (une con espacio y capitaliza inicio de oración)
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 ```rust
 #[cfg(test)]
@@ -305,12 +312,12 @@ mod tests {
 }
 ```
 
-- [ ] **Step 2: Correr el test para verificar que falla**
+- [x] **Step 2: Correr el test para verificar que falla**
 
 Run: `cargo test -p voice-type post_processor`
 Expected: FALLA (funciones no definidas).
 
-- [ ] **Step 3: Implementación mínima**
+- [x] **Step 3: Implementación mínima**
 
 ```rust
 use crate::vocab_store::Replacement;
@@ -368,12 +375,12 @@ fn capitalize_first(s: &str) -> String {
 }
 ```
 
-- [ ] **Step 4: Correr los tests**
+- [x] **Step 4: Correr los tests**
 
 Run: `cargo test -p voice-type post_processor`
 Expected: PASA.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src-tauri/src/post_processor.rs src-tauri/src/lib.rs
@@ -396,7 +403,7 @@ git commit -m "feat: post_processor with word-boundary replacements and segment 
   - `fn encode<T: Serialize>(msg: &T) -> String` (JSON + `\n`)
   - `fn decode<T: DeserializeOwned>(line: &str) -> Result<T, serde_json::Error>`
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 ```rust
 #[cfg(test)]
@@ -427,12 +434,12 @@ mod tests {
 }
 ```
 
-- [ ] **Step 2: Correr el test para verificar que falla**
+- [x] **Step 2: Correr el test para verificar que falla**
 
 Run: `cargo test -p voice-type ipc`
 Expected: FALLA.
 
-- [ ] **Step 3: Implementación mínima**
+- [x] **Step 3: Implementación mínima**
 
 ```rust
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
@@ -465,12 +472,12 @@ pub fn decode<T: DeserializeOwned>(line: &str) -> Result<T, serde_json::Error> {
 }
 ```
 
-- [ ] **Step 4: Correr los tests**
+- [x] **Step 4: Correr los tests**
 
 Run: `cargo test -p voice-type ipc`
 Expected: PASA.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src-tauri/src/ipc.rs src-tauri/src/lib.rs
@@ -493,7 +500,7 @@ git commit -m "feat: ipc message protocol with JSON line encoding"
   - `fn load(path: &Path) -> AppConfig`
   - `fn save(&self, path: &Path) -> io::Result<()>`
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 ```rust
 #[cfg(test)]
@@ -518,12 +525,12 @@ mod tests {
 }
 ```
 
-- [ ] **Step 2: Correr el test para verificar que falla**
+- [x] **Step 2: Correr el test para verificar que falla**
 
 Run: `cargo test -p voice-type config`
 Expected: FALLA.
 
-- [ ] **Step 3: Implementación mínima**
+- [x] **Step 3: Implementación mínima**
 
 ```rust
 use serde::{Deserialize, Serialize};
@@ -562,7 +569,7 @@ impl AppConfig {
 }
 ```
 
-- [ ] **Step 4: Configurar el sidecar para reusar `ipc`**
+- [x] **Step 4: Configurar el sidecar para reusar `ipc`**
 
 En `stt-sidecar/Cargo.toml` agregar dependencia al lib del proyecto principal (nombre del paquete `voice-type`):
 
@@ -580,7 +587,7 @@ name = "voice_type"
 path = "src/lib.rs"
 ```
 
-- [ ] **Step 5: Correr tests y commit**
+- [x] **Step 5: Correr tests y commit**
 
 Run: `cargo test -p voice-type config`
 Expected: PASA.
@@ -602,6 +609,14 @@ git commit -m "feat: AppConfig persistence and shared lib for sidecar"
 **Interfaces:**
 - Consumes: `voice_type::ipc::{ToSidecar, FromSidecar, encode, decode}`.
 - Produces: binario que lee `ToSidecar` de stdin (una línea JSON por mensaje) y escribe `FromSidecar` a stdout. Emite `Ready` al cargar modelo, `Result` por cada `Transcribe`, `Heartbeat` cada 2s, `Error` ante fallo.
+
+> **Preparada.** El sidecar ya está partido en dos: el manejo del protocolo
+> (`stt-sidecar/src/lib.rs`) contra el trait `Engine`, testeado con un motor de
+> mentira y sin GPU, y el motor real, que es lo único que falta. `whisper-rs`
+> va detrás de la feature `whisper` (apagada por defecto) para que el crate
+> siga compilando en el CI sin CUDA Toolkit. Lo que queda de esta task es
+> implementar `Engine` con `whisper-rs` y el test de integración con un modelo
+> local.
 
 - [ ] **Step 1: Agregar dependencia y helper de transcripción**
 
@@ -774,7 +789,7 @@ git commit -m "feat: STT sidecar with whisper-rs CUDA and IPC loop"
   - `fn resample_to_16k(mono: &[f32], src_rate: u32) -> Vec<f32>`
   - `struct AudioCapture` con `fn start(device: Option<&str>, sink: Sender<Vec<f32>>) -> Result<Stream>` (entrega bloques mono 16k). La captura viva se verifica a mano.
 
-- [ ] **Step 1: Escribir el test que falla (lógica pura)**
+- [x] **Step 1: Escribir el test que falla (lógica pura)**
 
 ```rust
 #[cfg(test)]
@@ -797,7 +812,7 @@ mod tests {
 }
 ```
 
-- [ ] **Step 2: Correr el test para verificar que falla**
+- [x] **Step 2: Correr el test para verificar que falla**
 
 Run: `cargo test -p voice-type audio`
 Expected: FALLA.
@@ -830,7 +845,14 @@ pub fn resample_to_16k(mono: &[f32], src_rate: u32) -> Vec<f32> {
 
 `AudioCapture::start` con `cpal`: abrir el device de entrada por defecto (o por nombre), en el callback hacer `downmix_to_mono` + acumular hasta ~30 ms, `resample_to_16k`, y enviar por el `Sender`. (El stream vivo no se testea en unit; ver Step 5.)
 
-- [ ] **Step 4: Correr tests unit**
+> **Parcial.** La conversión pura (`downmix_to_mono`, `resample_to_16k` y el
+> `Resampler16k` continuo) está implementada y testeada. `AudioCapture` con
+> `cpal` queda pendiente: no compila en el entorno Linux donde se hizo el resto
+> (falta ALSA) y su verificación es manual de todos modos. En el callback hay
+> que usar `Resampler16k`, no `resample_to_16k`: crear un resampler por bloque
+> se come el arranque del filtro en cada frontera y entrecorta el audio.
+
+- [x] **Step 4: Correr tests unit**
 
 Run: `cargo test -p voice-type audio`
 Expected: PASA.
@@ -861,7 +883,7 @@ git commit -m "feat: audio capture with mono downmix and 16k resample"
   - `impl Segmenter`: `fn new(silence_ms: u32, sample_rate: u32) -> Self`; `fn push(&mut self, frame: &[f32]) -> Option<Vec<f32>>` (devuelve un segmento cerrado cuando detecta silencio suficiente tras habla); `fn flush(&mut self) -> Option<Vec<f32>>` (cierra al parar el toggle).
 - Umbral de energía (RMS) configurable; por defecto 0.01.
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 ```rust
 #[cfg(test)]
@@ -898,12 +920,12 @@ mod tests {
 }
 ```
 
-- [ ] **Step 2: Correr el test para verificar que falla**
+- [x] **Step 2: Correr el test para verificar que falla**
 
 Run: `cargo test -p voice-type vad`
 Expected: FALLA.
 
-- [ ] **Step 3: Implementación mínima**
+- [x] **Step 3: Implementación mínima**
 
 ```rust
 pub struct Segmenter {
@@ -955,12 +977,12 @@ impl Segmenter {
 }
 ```
 
-- [ ] **Step 4: Correr los tests**
+- [x] **Step 4: Correr los tests**
 
 Run: `cargo test -p voice-type vad`
 Expected: PASA.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src-tauri/src/vad.rs src-tauri/src/lib.rs
@@ -983,7 +1005,7 @@ git commit -m "feat: energy-based silence segmenter for VAD"
   - `impl Sidecar`: `fn spawn(exe: &Path) -> io::Result<Sidecar>`; `fn send(&mut self, msg: &ToSidecar)`; `fn try_recv(&self) -> Option<FromSidecar>`; `fn is_alive(&mut self) -> bool`.
   - `struct Supervisor` con política: si `is_alive()==false` o no llega `Heartbeat` en 6s → re-spawn con backoff (0.5s, 1s, 2s, máx 5s) y re-`LoadModel`.
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 Fake sidecar de test: `src-tauri/tests/bin/echo_sidecar.rs` que responde `Ready` a `LoadModel` y `Result{id,text:"ok"}` a `Transcribe`.
 
@@ -1015,12 +1037,12 @@ mod tests {
 }
 ```
 
-- [ ] **Step 2: Correr el test para verificar que falla**
+- [x] **Step 2: Correr el test para verificar que falla**
 
 Run: `cargo test -p voice-type supervisor`
 Expected: FALLA.
 
-- [ ] **Step 3: Implementación mínima**
+- [x] **Step 3: Implementación mínima**
 
 ```rust
 use crate::ipc::{decode, encode, FromSidecar, ToSidecar};
@@ -1070,12 +1092,12 @@ impl Sidecar {
 
 `Supervisor`: guarda `LoadModel` params; un tick cada 1s revisa `is_alive()` y última vez que se vio `Heartbeat` (actualizado al drenar `try_recv`); si falla, `Sidecar::spawn` + reenvía `LoadModel` con backoff.
 
-- [ ] **Step 4: Correr los tests**
+- [x] **Step 4: Correr los tests**
 
 Run: `cargo test -p voice-type supervisor`
 Expected: PASA.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src-tauri/src/supervisor.rs src-tauri/src/lib.rs src-tauri/tests/
@@ -1097,7 +1119,7 @@ git commit -m "feat: sidecar supervisor with spawn, IPC channels and liveness"
   - `fn inject<C: Clipboard>(cb: &mut C, paste: impl FnOnce(), text: &str)` — guarda actual, set `text`, `paste()`, restaura.
   - Impl real `SystemClipboard` (arboard) y `fn paste_ctrl_v()` (enigo).
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 ```rust
 #[cfg(test)]
@@ -1125,12 +1147,12 @@ mod tests {
 }
 ```
 
-- [ ] **Step 2: Correr el test para verificar que falla**
+- [x] **Step 2: Correr el test para verificar que falla**
 
 Run: `cargo test -p voice-type text_injector`
 Expected: FALLA.
 
-- [ ] **Step 3: Implementación mínima**
+- [x] **Step 3: Implementación mínima**
 
 ```rust
 pub trait Clipboard {
@@ -1166,7 +1188,7 @@ pub fn paste_ctrl_v() {
 
 Nota producción: entre `cb.set(text)` y restaurar, dormir ~120 ms para que la app destino procese el `Ctrl+V` antes de devolver el portapapeles original.
 
-- [ ] **Step 4: Correr tests unit**
+- [x] **Step 4: Correr tests unit**
 
 Run: `cargo test -p voice-type text_injector`
 Expected: PASA.
@@ -1174,6 +1196,11 @@ Expected: PASA.
 - [ ] **Step 5: Verificación manual**
 
 Ejemplo `examples/inject_probe.rs`: foco en el Bloc de notas, correr, debe aparecer "hola mundo" y el portapapeles quedar como estaba.
+
+> **Pendiente de verificación manual en Windows 11.** El ejemplo todavía no
+> existe: `arboard`/`enigo` sólo compilan con la feature `app`, que no se puede
+> construir en el entorno Linux donde se implementó el módulo. La lógica de
+> guardar/restaurar sí está testeada, con portapapeles de mentira.
 
 - [ ] **Step 6: Commit**
 
@@ -1197,7 +1224,7 @@ git commit -m "feat: text_injector with clipboard save/restore and Ctrl+V paste"
   - `struct Pipeline` con `fn start(&mut self)` (arranca captura → segmenta → envía a sidecar) y `fn stop(&mut self)` (flush último segmento). Estado emitido a la UI: `Idle | Listening | Transcribing`.
   - `fn on_result(&mut self, id: u64, text: String)` — aplica `post_processor::apply` con reemplazos del `Vocab`, `join_segments`, e inyecta.
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 ```rust
 #[cfg(test)]
@@ -1217,12 +1244,12 @@ mod tests {
 }
 ```
 
-- [ ] **Step 2: Correr el test para verificar que falla**
+- [x] **Step 2: Correr el test para verificar que falla**
 
 Run: `cargo test -p voice-type pipeline`
 Expected: FALLA.
 
-- [ ] **Step 3: Implementación mínima**
+- [x] **Step 3: Implementación mínima**
 
 `Pipeline::for_test` inyecta un closure en vez del `SystemClipboard` real. `on_result` hace:
 
@@ -1235,7 +1262,12 @@ pub fn on_result(&mut self, _id: u64, raw: String) {
 
 El wiring real (`start`/`stop`) conecta: `AudioCapture` → canal → `Segmenter::push` → `Sidecar::send(Transcribe)`; un hilo drena `Sidecar::try_recv` → `on_result`. `stop` llama `Segmenter::flush` y procesa el último.
 
-- [ ] **Step 4: Correr los tests**
+> **Parcial.** `on_result`, `finish`, `transcript`, `last_raw_segment` y
+> `add_vocab_word` están implementados y testeados. El cableado con
+> `AudioCapture` y `Sidecar` queda para Windows, porque depende de la captura
+> pendiente de la Task 7.
+
+- [x] **Step 4: Correr los tests**
 
 Run: `cargo test -p voice-type pipeline`
 Expected: PASA.
@@ -1265,7 +1297,7 @@ git commit -m "feat: dictation pipeline wiring audio->vad->stt->postproc->inject
   - Comandos Tauri: `#[tauri::command] fn toggle_dictation(state) -> String` (devuelve nuevo estado), `fn add_vocab_word(heard, correct, state)`, `fn get_last_transcription(state) -> String`.
   - Registro del atajo `config.toggle_shortcut` que llama `toggle_dictation`.
 
-- [ ] **Step 1: Escribir el test que falla (mapeo estado toggle)**
+- [x] **Step 1: Escribir el test que falla (mapeo estado toggle)**
 
 ```rust
 #[cfg(test)]
@@ -1282,7 +1314,7 @@ mod tests {
 }
 ```
 
-- [ ] **Step 2: Correr el test para verificar que falla**
+- [x] **Step 2: Correr el test para verificar que falla**
 
 Run: `cargo test -p voice-type hotkeys`
 Expected: FALLA.
@@ -1302,7 +1334,12 @@ impl DictationState {
 
 `commands.rs`: comandos que mutan el `Pipeline` compartido (dentro de `tauri::State<Mutex<AppState>>`), emiten evento `state-changed` al frontend, y llaman `pipeline.start()/stop()`. Registrar `global-shortcut` en `main.rs` con `config.toggle_shortcut`.
 
-- [ ] **Step 4: Correr los tests**
+> **Parcial.** `DictationState` con `toggled()` e `is_dictating()` está hecho, y
+> hay un test que fija que sus nombres serializados coinciden con el tipo
+> `Status` del frontend. `commands.rs` y el registro del atajo necesitan Tauri
+> y quedan para Windows.
+
+- [x] **Step 4: Correr los tests**
 
 Run: `cargo test -p voice-type hotkeys`
 Expected: PASA.
@@ -1331,11 +1368,11 @@ git commit -m "feat: global toggle hotkey and Tauri commands"
 - Consumes: evento Tauri `state-changed` (`"Idle" | "Listening" | "Transcribing"`), comando `toggle_dictation`.
 - Produces: ventana sin bordes, translúcida, redondeada, arrastrable; onda animada en `Listening`; botón "+" que abre el popup (Task 14).
 
-- [ ] **Step 1: Configurar ventana de la píldora**
+- [x] **Step 1: Configurar ventana de la píldora**
 
 En `tauri.conf.json`: ventana `decorations: false`, `transparent: true`, `alwaysOnTop: true`, `skipTaskbar: true`, tamaño chico (~ 220×56), `resizable: false`.
 
-- [ ] **Step 2: Store de estado + test Vitest**
+- [x] **Step 2: Store de estado + test Vitest**
 
 ```ts
 // src/lib/state.ts
@@ -1354,7 +1391,7 @@ test("default status is Idle", () => { expect(get(status)).toBe("Idle"); });
 
 Run: `npx vitest run` → PASA.
 
-- [ ] **Step 3: Componente `PillWidget.svelte` (estética Apple)**
+- [x] **Step 3: Componente `PillWidget.svelte` (estética Apple)**
 
 CSS: `backdrop-filter: blur(20px)`, `border-radius: 28px`, `background: rgba(255,255,255,0.65)` (y variante dark), sombra `0 8px 30px rgba(0,0,0,.18)`, `font-family: -apple-system, system-ui`. Estado `Listening`: barras de onda animadas con `@keyframes`. Escuchar el evento Tauri y actualizar `status`. Click en el cuerpo → `invoke("toggle_dictation")`. Botón "+" a la derecha.
 
@@ -1362,7 +1399,13 @@ CSS: `backdrop-filter: blur(20px)`, `border-radius: 28px`, `background: rgba(255
 
 `npm run tauri dev`: la píldora se ve translúcida/redondeada; al togglear cambia el estado y anima.
 
-- [ ] **Step 5: Commit**
+> **Primera pasada hecha en navegador.** Con `npx vite preview` + capturas en
+> Chromium se revisó el diseño en claro y oscuro: la píldora se ve translúcida
+> y redondeada, las ondas animan en azul y el popup queda coherente. Falta la
+> pasada en Windows: que el toggle real cambie el estado, y que la
+> translucidez y el siempre-encima se comporten con una ventana de verdad.
+
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/ tauri.conf.json src-tauri/tauri.conf.json
@@ -1382,7 +1425,7 @@ git commit -m "feat: Apple-style floating PillWidget with status states"
 - Consumes: comando `get_last_transcription` → string; comando `add_vocab_word(heard, correct)`.
 - Produces: popup que muestra la última frase, permite tocar un token (marcarlo como `heard`) y escribir la forma `correct`, y guarda.
 
-- [ ] **Step 1: Test Vitest de tokenización/selección**
+- [x] **Step 1: Test Vitest de tokenización/selección**
 
 ```ts
 // src/lib/tokenize.test.ts
@@ -1395,9 +1438,14 @@ test("splits sentence into word tokens", () => {
 
 Crear `src/lib/tokenize.ts` con `export const tokenize = (s: string) => s.trim().split(/\s+/);`. Run: `npx vitest run` → PASA.
 
-- [ ] **Step 2: Componente `AddWordPopup.svelte`**
+- [x] **Step 2: Componente `AddWordPopup.svelte`**
 
 Al abrir: `invoke("get_last_transcription")`, render tokens como chips; al click en un chip se setea `heard`; input para `correct`; botón Guardar → `invoke("add_vocab_word", { heard, correct })` y cerrar. Estética: tarjeta redondeada translúcida, coherente con la píldora.
+
+> **Steps 3 y 4 pendientes.** `get_last_transcription` y `add_vocab_word` son
+> comandos de Tauri: la lógica que los alimenta ya está en `Pipeline`
+> (`last_raw_segment()` y `add_vocab_word()`), falta exponerlos desde
+> `commands.rs` en la máquina Windows.
 
 - [ ] **Step 3: Backend commands**
 
@@ -1407,7 +1455,7 @@ Implementar `get_last_transcription` (última cadena guardada en `AppState`) y `
 
 Dictar algo mal, "+", corregir palabra, guardar; volver a dictar y ver que ahora sale corregido (por reemplazo) y mejor reconocido (por prompt).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/ src-tauri/src/commands.rs
@@ -1430,7 +1478,7 @@ git commit -m "feat: AddWordPopup with vocab correction and hot prompt reload"
   - `fn model_path(app_data: &Path, name: &str) -> PathBuf` y `fn ensure_model(...)` (descarga si falta, con progreso).
   - Logging `tracing` a archivo con rotación diaria.
 
-- [ ] **Step 1: Test del path del modelo**
+- [x] **Step 1: Test del path del modelo**
 
 ```rust
 #[cfg(test)]
@@ -1445,21 +1493,26 @@ mod tests {
 }
 ```
 
-- [ ] **Step 2: Correr el test para verificar que falla**
+- [x] **Step 2: Correr el test para verificar que falla**
 
 Run: `cargo test -p voice-type model_download`
 Expected: FALLA.
+
+> **Parcial.** Lo que no toca la red está hecho y testeado: `model_path`,
+> `partial_path`, `model_url` e `is_valid_model_name`. La descarga en sí
+> (`ensure_model` con reqwest), la bandeja, el autostart, la instancia única y
+> el logging necesitan Tauri y quedan para Windows.
 
 - [ ] **Step 3: Implementación**
 
 `model_path` une `app_data/models/<name>`. `ensure_model`: si no existe, descarga desde el repo oficial de modelos ggml de whisper.cpp (Hugging Face) con `reqwest` streaming + emite progreso al frontend. Registrar en `main.rs`: `tauri-plugin-autostart` (login), `tauri-plugin-single-instance`, tray con menú, y `tracing_subscriber` con `tracing-appender` (rotación diaria en `app_data/logs`).
 
-- [ ] **Step 4: Correr tests unit**
+- [x] **Step 4: Correr tests unit**
 
 Run: `cargo test -p voice-type model_download`
 Expected: PASA.
 
-- [ ] **Step 5: Verificación manual de servicio**
+- [x] **Step 5: Verificación manual de servicio**
 
 - Primer arranque sin modelo: descarga con progreso, luego dicta.
 - Activar autostart; reiniciar sesión de Windows; la app arranca en la bandeja.

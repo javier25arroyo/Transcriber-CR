@@ -1,0 +1,28 @@
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+
+  color: #1c1c1e;
+  background-color: #f5f5f7;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color: #f5f5f7;
+    background-color: #1c1c1e;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  /* La píldora es una ventana sin bordes: nada de scrollbars ni selección
+     accidental de texto al arrastrarla. */
+  overflow: hidden;
+  user-select: none;
+}

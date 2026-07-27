@@ -21,26 +21,78 @@ jobs:
       - name: Cache cargo registry and build
         uses: Swatinem/rust-cache@v2
 
-      # These steps need a workspace Cargo.toml, which doesn't exist until
-      # Task 1 of the implementation plan (scaffold) lands. Skipping instead
-      # of failing keeps main's required checks meaningful once code exists,
-      # without a permanent red X on an empty repo. Remove this guard once
-      # Cargo.toml is committed — a real absence of it at that point should
-      # fail loudly.
+      # pnpm tiene que estar instalado antes de actions/setup-node: el cache
+      # `pnpm` de ese action invoca `pnpm store path` para ubicar qué cachear.
+      # La versión queda fija acá y tiene que seguir a `packageManager` en
+      # package.json si cambia.
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+
+      # `tauri-build` (build.rs) exige que exista el frontend construido en
+      # `dist/` antes de compilar el crate con la feature `app`.
+      - name: Build frontend
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build
+
       - name: Check formatting
-        if: hashFiles('Cargo.toml') != ''
         run: cargo fmt --all -- --check
 
-      # Only the voice-type package: stt-sidecar depends on whisper-rs with
-      # the `cuda` feature, which needs the CUDA Toolkit — not available on
-      # GitHub-hosted runners. See docs/adr/0001-isolated-stt-sidecar.md.
+      # Sólo el paquete voice-type: stt-sidecar depende de whisper-rs con la
+      # feature `cuda`, que necesita el CUDA Toolkit — no disponible en los
+      # runners de GitHub. Ver docs/adr/0001-isolated-stt-sidecar.md.
       - name: Clippy (voice-type only, no GPU crate)
-        if: hashFiles('Cargo.toml') != ''
         run: cargo clippy -p voice-type --all-targets -- -D warnings
 
       - name: Test (voice-type only, no GPU crate)
-        if: hashFiles('Cargo.toml') != ''
         run: cargo test -p voice-type
+
+  core-logic:
+    name: Lógica pura (sin toolkit gráfico)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Cache cargo registry and build
+        uses: Swatinem/rust-cache@v2
+
+      # Este job es la garantía de que los módulos deterministas de la
+      # librería `voice_type` siguen sin depender de Tauri: corre en Linux sin
+      # WebKitGTK ni frontend construido. Si alguien mete un `use tauri::…` en
+      # un módulo puro, este job se pone rojo antes que el de Windows.
+      # Ver CONTRIBUTING.md § Running tests.
+      - name: Clippy (--no-default-features)
+        run: cargo clippy -p voice-type --no-default-features --all-targets -- -D warnings
+
+      - name: Test (--no-default-features)
+        run: cargo test -p voice-type --no-default-features
+
+      # `injector` (arboard + enigo) es parte de la app pero no depende de
+      # Tauri, así que su código real sí se puede compilar acá. Cubre el módulo
+      # que toca el portapapeles del usuario sin esperar al job de Windows.
+      - name: Clippy (--features injector)
+        run: cargo clippy -p voice-type --no-default-features --features injector --all-targets -- -D warnings
+
+      # El sidecar sí se puede testear acá: whisper-rs está detrás de la feature
+      # `whisper`, apagada por defecto, así que sin CUDA se compila igual y se
+      # prueba todo el manejo del protocolo contra un motor de mentira.
+      - name: Clippy y tests del sidecar (sin la feature whisper)
+        run: |
+          cargo clippy -p stt-sidecar --all-targets -- -D warnings
+          cargo test -p stt-sidecar
 
   frontend:
     name: Frontend (vitest, svelte-check)
@@ -48,26 +100,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # setup-node's own npm cache needs a lock file to key off; without one
-      # it errors before any of our hashFiles guards below even run. Disable
-      # caching when there's nothing to cache yet — restore `cache: npm`
-      # unconditionally in the same Task 1 step that removes the other guards.
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: ${{ hashFiles('package-lock.json') != '' && 'npm' || '' }}
+          cache: pnpm
 
-      # Same reasoning as the Rust job's guards above: no package.json until
-      # Task 1's scaffold lands. Remove this guard once it's committed.
       - name: Install dependencies
-        if: hashFiles('package.json') != ''
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Unit tests
-        if: hashFiles('package.json') != ''
-        run: npx vitest run
+        run: pnpm test
 
       - name: Svelte type check
-        if: hashFiles('package.json') != ''
-        run: npx svelte-check
+        run: pnpm check

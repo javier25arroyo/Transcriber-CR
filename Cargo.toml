@@ -1,0 +1,10 @@
+[workspace]
+members = ["src-tauri", "stt-sidecar"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+authors = ["Javier Pérez Arroyo"]
+repository = "https://github.com/javier25arroyo/Transcriber-CR"

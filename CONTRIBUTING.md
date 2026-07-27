@@ -5,7 +5,10 @@ development, but it's built to be contributable.
 
 ## Setup
 
-1. Install [Rust](https://rustup.rs/) (stable) and [Node.js LTS](https://nodejs.org/).
+1. Install [Rust](https://rustup.rs/) (stable), [Node.js LTS](https://nodejs.org/) and
+   [pnpm](https://pnpm.io/installation) (the version pinned in `package.json`'s
+   `packageManager` field — `corepack enable` picks it up automatically on
+   recent Node).
 2. For the STT sidecar, install the [CUDA Toolkit 12.x](https://developer.nvidia.com/cuda-downloads)
    (an NVIDIA GPU with 8 GB+ VRAM is required to build and run it; CPU fallback
    exists at runtime but isn't required to build).
@@ -20,8 +23,8 @@ development, but it's built to be contributable.
 4. Install frontend dependencies and start the dev app:
 
    ```bash
-   npm install
-   npm run tauri dev
+   pnpm install
+   pnpm tauri dev
    ```
 
 ## Project layout
@@ -36,6 +39,17 @@ Voice Type/
 
 `src-tauri` is both a binary and a library (`voice_type`). `stt-sidecar`
 depends on `voice-type` as a library to reuse the shared `ipc` module.
+
+`whisper-rs` sits behind `stt-sidecar`'s `whisper` cargo feature, off by
+default. The sidecar's protocol handling talks to an `Engine` trait, so it
+compiles and is tested without the CUDA toolkit; production builds use
+`cargo build -p stt-sidecar --features whisper --release`.
+
+The Tauri dependency itself sits behind the `app` cargo feature (on by
+default). Turning it off — `--no-default-features` — builds only the library:
+the pure, deterministic modules, with no GUI toolkit and no built frontend
+required. That is what makes the modules testable on a machine that isn't the
+Windows target box.
 
 **This dependency direction matters and must not be reversed.** `stt-sidecar`
 is the only crate that needs to compile `whisper-rs` with CUDA. If
@@ -64,9 +78,15 @@ Three tiers, from cheapest to most expensive:
 
 | Command | What it covers | Runs on CI? |
 |---|---|---|
-| `cargo test -p voice-type` | Pure logic in the main crate — no hardware, no GPU | Yes |
-| `npx vitest run` | Frontend unit tests | Yes |
-| `cargo test -p stt-sidecar -- --ignored` | Real transcription against a local model, requires CUDA and a downloaded model | No — local only |
+| `cargo test -p voice-type --no-default-features` | Pure logic only — no Tauri, no built frontend, runs on any OS | Yes (Linux job) |
+| `cargo test -p voice-type` | The same tests plus everything the Tauri app pulls in; needs `pnpm build` first | Yes (Windows job) |
+| `pnpm test` | Frontend unit tests | Yes |
+| `cargo test -p stt-sidecar` | The sidecar's protocol handling, against a fake engine — no CUDA needed | Yes (Linux job) |
+| `cargo test -p stt-sidecar --features whisper -- --ignored` | Real transcription against a local model, requires CUDA and a downloaded model | No — local only |
+
+The first row is the one to reach for while working on a module: it skips the
+`app` feature, so `cargo` never has to build Tauri or find a WebView. The
+Windows job is what proves the app itself still compiles.
 
 ## Manual verification
 
@@ -83,6 +103,13 @@ merging a PR that touches them:
   dictating, confirm the supervisor restarts it and dictation keeps working.
 - Autostart at Windows login.
 
+For the pill and the popup there's a cheaper first pass that doesn't need
+Windows: `pnpm build && pnpm preview` renders them in any browser. The
+Tauri calls fail there (there's no backend), which the components handle, so
+you get the layout, the colors and the light/dark variants without leaving the
+dev machine. What that pass can't tell you is whether the translucency and the
+always-on-top window behave on real Windows — that still needs the target box.
+
 If your change touches one of these areas, say in the PR description how you
 verified it manually — the CI template has a field for this.
 
@@ -94,6 +121,51 @@ verified it manually — the CI template has a field for this.
 - Squash merge, so each unit of work is one commit on `main`.
 - No mandatory reviewer for now — this is a one-person project. That
   requirement gets added the day a second contributor shows up.
+
+## Codebase memory MCP (optional, for coding agents)
+
+`.mcp.json` at the repo root registers [`codebase-memory-mcp`](https://github.com/DeusData/codebase-memory-mcp)
+as a project-scoped MCP server: a local code-intelligence index (call graphs,
+symbol search) that Claude Code and similar agents can query instead of
+re-grepping the tree on every task. It's optional tooling for whoever is
+driving an agent against this repo — nothing in the Voice Type app depends on
+it, and it's not part of the build.
+
+Install the binary yourself; the repo only carries the pointer to it:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.sh | bash -s -- --skip-config
+```
+
+`--skip-config` matters. Without it, the installer's own `install` step edits
+the configuration of every supported coding-agent client it finds on your
+account (43 of them, per its own docs) — broader than "just this project" and
+not something to run unreviewed. `.mcp.json` here is the project-scoped,
+diffable alternative: it only takes effect for whoever opens this repo, and
+you can see exactly what it does before trusting it.
+
+The install script downloads a prebuilt archive and verifies its SHA-256
+against a `checksums.txt` published alongside it before running anything —
+worth knowing, but that only proves the download wasn't corrupted or swapped
+in transit, not that the tool itself is trustworthy. Review it with the same
+scrutiny you'd give any third-party binary before wiring it into your agent's
+toolchain.
+
+Make sure the install directory is on your `PATH` (the installer warns if it
+isn't; default is `~/.local/bin`), then restart your coding agent so it picks
+up `.mcp.json`.
+
+## Regenerating the app icons
+
+`src-tauri/icons/` is generated from `app-icon.svg` at the repo root:
+
+```bash
+pnpm tauri icon app-icon.svg -o src-tauri/icons
+```
+
+The generator also emits macOS, iOS and Android variants; delete them. v1 targets
+Windows only, and `icons/icon.ico` is the one `tauri-build` actually requires —
+without it the Windows build fails even with bundling turned off.
 
 ## Regenerating test fixtures
 

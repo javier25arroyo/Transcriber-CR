@@ -1,0 +1,5 @@
+packages:
+  - .
+
+minimumReleaseAgeExclude:
+  - svelte-check@4.7.4

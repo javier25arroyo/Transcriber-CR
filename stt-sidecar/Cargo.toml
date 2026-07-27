@@ -1,0 +1,27 @@
+[package]
+name = "stt-sidecar"
+description = "Proceso aislado de reconocimiento de voz para Voice Type"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+# `default-features = false` apaga la feature `app` de voice-type: el sidecar
+# sólo necesita el módulo `ipc`, y arrastrar Tauri hasta acá obligaría a tener
+# WebView2 para compilar un proceso que no dibuja nada.
+#
+# La dirección de esta dependencia es load-bearing y no se invierte:
+# stt-sidecar → voice-type, nunca al revés. Ver ADR 0001.
+voice-type = { path = "../src-tauri", default-features = false }
+serde_json = "1"
+
+# El motor real (whisper.cpp con CUDA) entra con esta feature, apagada por
+# defecto. Así el crate compila y se testea en cualquier máquina —incluido el
+# CI, que no tiene CUDA Toolkit— y el build de producción usa
+# `cargo build -p stt-sidecar --features whisper`. Sin la feature, el sidecar
+# arranca igual y contesta un error claro a LoadModel y Transcribe.
+[features]
+default = []
+whisper = []
