@@ -34,7 +34,7 @@ open-source utilizable por terceros.
 | Versionado | SemVer, arranca en `0.1.0`; `1.0.0` = las 15 tasks del plan completas y verificadas |
 | Idioma | README bilingüe (inglés primero, español debajo); resto de documentos en inglés |
 | Fixture de audio para tests | Generado con TTS del sistema, no voz real |
-| Copyright y contacto | Javier — javier25arojas@gmail.com |
+| Copyright y contacto | Javier Pérez Arroyo — javier25arojas@gmail.com |
 
 > **Nota de privacidad:** el correo de contacto queda público e indexable de
 > forma permanente en el historial de git. Decisión tomada a conciencia.
@@ -52,6 +52,7 @@ Voice Type/
 ├─ CODE_OF_CONDUCT.md              # Contributor Covenant 2.1
 ├─ SECURITY.md                     # modelo de amenaza y reporte de vulnerabilidades
 ├─ .gitignore                      # Rust, Node, Tauri, modelos, fixtures generados
+├─ .gitattributes                  # normaliza finales de línea, marca binarios
 ├─ .github/
 │  ├─ workflows/ci.yml             # fmt + clippy + tests sin GPU + checks de frontend
 │  ├─ ISSUE_TEMPLATE/
@@ -148,14 +149,24 @@ Contributor Covenant 2.1 sin modificaciones, contacto javier25arojas@gmail.com.
 
 ### 4.6 `LICENSE`
 
-MIT, `Copyright (c) 2026 Javier`.
+MIT, `Copyright (c) 2026 Javier Pérez Arroyo`.
 
 ### 4.7 `.gitignore`
 
 Cubre: `target/`, `node_modules/`, `dist/`, artefactos de build de Tauri,
 `models/` (los `.bin` de whisper pesan cientos de MB y se descargan solos),
-fixtures de audio generados, logs locales, y archivos de configuración de la
-app en desarrollo.
+logs locales, y archivos de configuración de la app en desarrollo. El fixture de
+audio sintético **sí** se versiona (ver §10).
+
+### 4.8 `.gitattributes`
+
+El desarrollo es en Windows pero el repo es público y el job de frontend del CI
+corre en Linux. Sin normalización, los finales de línea generan diffs completos
+sobre archivos que nadie tocó.
+
+- `* text=auto eol=lf` — todo texto se guarda con LF en el repositorio.
+- `*.ps1 text eol=crlf` — los scripts de PowerShell necesitan CRLF.
+- `*.wav binary`, `*.bin binary`, `*.png binary` — sin conversión ni diffs.
 
 ## 5. Registro de decisiones (ADRs)
 
