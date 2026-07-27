@@ -21,18 +21,27 @@ jobs:
       - name: Cache cargo registry and build
         uses: Swatinem/rust-cache@v2
 
+      # pnpm tiene que estar instalado antes de actions/setup-node: el cache
+      # `pnpm` de ese action invoca `pnpm store path` para ubicar qué cachear.
+      # La versión queda fija acá y tiene que seguir a `packageManager` en
+      # package.json si cambia.
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: npm
+          cache: pnpm
 
       # `tauri-build` (build.rs) exige que exista el frontend construido en
       # `dist/` antes de compilar el crate con la feature `app`.
       - name: Build frontend
         run: |
-          npm ci
-          npm run build
+          pnpm install --frozen-lockfile
+          pnpm build
 
       - name: Check formatting
         run: cargo fmt --all -- --check
@@ -91,17 +100,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: npm
+          cache: pnpm
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Unit tests
-        run: npx vitest run
+        run: pnpm test
 
       - name: Svelte type check
-        run: npx svelte-check
+        run: pnpm check

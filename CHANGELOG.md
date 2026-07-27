@@ -48,5 +48,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   frontend antes de compilar el crate en Windows y se agregó un job en Linux
   que corre la lógica pura con `--no-default-features` y revisa el módulo del
   portapapeles con `--features injector`.
+- Gestor de paquetes del frontend: de npm a pnpm (`pnpm@9.15.4`, fijado en
+  `package.json` → `packageManager`). `README.md` y `CONTRIBUTING.md` usan los
+  comandos de pnpm; `package-lock.json` salió del control de versiones a favor
+  de `pnpm-lock.yaml`.
 
 ### Fixed
+
+- CI: los tres jobs que instalan Node.js seguían configurados para npm
+  (`cache: npm`, `npm ci`) después de la migración a pnpm, lo que los hacía
+  fallar apenas `package-lock.json` dejó de existir. Se agregó
+  `pnpm/action-setup` antes de `actions/setup-node` en los jobs `rust` y
+  `frontend`, con `cache: pnpm`, y los comandos pasaron a
+  `pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` / `pnpm check`.

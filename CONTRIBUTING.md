@@ -5,7 +5,10 @@ development, but it's built to be contributable.
 
 ## Setup
 
-1. Install [Rust](https://rustup.rs/) (stable) and [Node.js LTS](https://nodejs.org/).
+1. Install [Rust](https://rustup.rs/) (stable), [Node.js LTS](https://nodejs.org/) and
+   [pnpm](https://pnpm.io/installation) (the version pinned in `package.json`'s
+   `packageManager` field — `corepack enable` picks it up automatically on
+   recent Node).
 2. For the STT sidecar, install the [CUDA Toolkit 12.x](https://developer.nvidia.com/cuda-downloads)
    (an NVIDIA GPU with 8 GB+ VRAM is required to build and run it; CPU fallback
    exists at runtime but isn't required to build).
@@ -20,8 +23,8 @@ development, but it's built to be contributable.
 4. Install frontend dependencies and start the dev app:
 
    ```bash
-   npm install
-   npm run tauri dev
+   pnpm install
+   pnpm tauri dev
    ```
 
 ## Project layout
@@ -76,8 +79,8 @@ Three tiers, from cheapest to most expensive:
 | Command | What it covers | Runs on CI? |
 |---|---|---|
 | `cargo test -p voice-type --no-default-features` | Pure logic only — no Tauri, no built frontend, runs on any OS | Yes (Linux job) |
-| `cargo test -p voice-type` | The same tests plus everything the Tauri app pulls in; needs `npm run build` first | Yes (Windows job) |
-| `npx vitest run` | Frontend unit tests | Yes |
+| `cargo test -p voice-type` | The same tests plus everything the Tauri app pulls in; needs `pnpm build` first | Yes (Windows job) |
+| `pnpm test` | Frontend unit tests | Yes |
 | `cargo test -p stt-sidecar` | The sidecar's protocol handling, against a fake engine — no CUDA needed | Yes (Linux job) |
 | `cargo test -p stt-sidecar --features whisper -- --ignored` | Real transcription against a local model, requires CUDA and a downloaded model | No — local only |
 
@@ -101,7 +104,7 @@ merging a PR that touches them:
 - Autostart at Windows login.
 
 For the pill and the popup there's a cheaper first pass that doesn't need
-Windows: `npm run build && npx vite preview` renders them in any browser. The
+Windows: `pnpm build && pnpm preview` renders them in any browser. The
 Tauri calls fail there (there's no backend), which the components handle, so
 you get the layout, the colors and the light/dark variants without leaving the
 dev machine. What that pass can't tell you is whether the translucency and the
@@ -157,7 +160,7 @@ up `.mcp.json`.
 `src-tauri/icons/` is generated from `app-icon.svg` at the repo root:
 
 ```bash
-npx tauri icon app-icon.svg -o src-tauri/icons
+pnpm tauri icon app-icon.svg -o src-tauri/icons
 ```
 
 The generator also emits macOS, iOS and Android variants; delete them. v1 targets
