@@ -10,6 +10,7 @@ pub mod audio;
 pub mod config;
 pub mod hotkeys;
 pub mod ipc;
+pub mod model_download;
 pub mod pipeline;
 pub mod post_processor;
 pub mod supervisor;

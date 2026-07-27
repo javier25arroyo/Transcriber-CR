@@ -37,7 +37,7 @@ ALSA**. El objetivo del producto sigue siendo Windows 11. Consecuencia práctica
 | 12 | Hotkeys + comandos | Parcial: estado hecho | 4 tests unitarios; comandos Tauri pendientes |
 | 13 | `PillWidget` | Hecho | 5 tests + capturas en claro y oscuro |
 | 14 | `AddWordPopup` | Frontend hecho | 6 tests + capturas; comandos Tauri pendientes |
-| 15 | Tray, autostart, modelo | Pendiente | Requiere Windows |
+| 15 | Tray, autostart, modelo | Parcial: rutas hechas | 6 tests unitarios; el resto requiere Windows |
 
 ## Lo que hay que hacer en la máquina Windows
 
@@ -431,3 +431,31 @@ Capturas en Chromium (claro y oscuro): píldora en reposo, píldora activa y pop
 **Pendiente.** Los comandos `get_last_transcription` y `add_vocab_word` del
 step 3 de la Task 14: la lógica ya está en `Pipeline`, falta exponerla desde
 `commands.rs` en Windows. Y la pasada visual con `npm run tauri dev`.
+
+### Task 15 — Descarga del modelo (parcial)
+
+**Qué se hizo.** `model_path`, `partial_path`, `model_url` e
+`is_valid_model_name`: todo lo que se puede decidir sin tocar la red.
+
+**Dos cosas que valen más que las rutas en sí.**
+
+- *La descarga va a un `.part` y recién al terminar se renombra.* Un corte de
+  red a mitad de camino deja un `.part` incompleto en vez de un `.bin` truncado
+  que, en el próximo arranque, parecería un modelo válido y haría fallar la
+  carga con un error del motor nativo imposible de interpretar.
+- *`is_valid_model_name` rechaza cualquier cosa que no sea `ggml-*.bin` sin
+  rutas adentro.* `model_name` sale de `config.json`, que el usuario puede
+  editar a mano: sin esa validación, un nombre como `../../algo.bin` escribiría
+  la descarga fuera de la carpeta de modelos y apuntaría la URL a otro lugar
+  del repositorio. Hay tests para `..`, barras, barras invertidas y rutas
+  absolutas de Windows.
+
+**Pruebas ejecutadas.**
+
+```
+cargo test -p voice-type --no-default-features model_download  → 6 passed
+cargo test -p voice-type --no-default-features                 → 75 unitarios + 4 de integración
+```
+
+**Pendiente (Windows).** `ensure_model` con la descarga real, la bandeja, el
+autostart, la instancia única y el logging con rotación diaria.

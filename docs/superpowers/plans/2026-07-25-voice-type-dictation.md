@@ -1490,11 +1490,16 @@ mod tests {
 Run: `cargo test -p voice-type model_download`
 Expected: FALLA.
 
+> **Parcial.** Lo que no toca la red está hecho y testeado: `model_path`,
+> `partial_path`, `model_url` e `is_valid_model_name`. La descarga en sí
+> (`ensure_model` con reqwest), la bandeja, el autostart, la instancia única y
+> el logging necesitan Tauri y quedan para Windows.
+
 - [ ] **Step 3: Implementación**
 
 `model_path` une `app_data/models/<name>`. `ensure_model`: si no existe, descarga desde el repo oficial de modelos ggml de whisper.cpp (Hugging Face) con `reqwest` streaming + emite progreso al frontend. Registrar en `main.rs`: `tauri-plugin-autostart` (login), `tauri-plugin-single-instance`, tray con menú, y `tracing_subscriber` con `tracing-appender` (rotación diaria en `app_data/logs`).
 
-- [ ] **Step 4: Correr tests unit**
+- [x] **Step 4: Correr tests unit**
 
 Run: `cargo test -p voice-type model_download`
 Expected: PASA.
