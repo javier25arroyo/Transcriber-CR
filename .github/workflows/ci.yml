@@ -48,11 +48,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # setup-node's own npm cache needs a lock file to key off; without one
+      # it errors before any of our hashFiles guards below even run. Disable
+      # caching when there's nothing to cache yet — restore `cache: npm`
+      # unconditionally in the same Task 1 step that removes the other guards.
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: npm
+          cache: ${{ hashFiles('package-lock.json') != '' && 'npm' || '' }}
 
       # Same reasoning as the Rust job's guards above: no package.json until
       # Task 1's scaffold lands. Remove this guard once it's committed.
