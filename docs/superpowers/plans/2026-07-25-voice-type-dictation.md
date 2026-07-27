@@ -990,7 +990,7 @@ git commit -m "feat: energy-based silence segmenter for VAD"
   - `impl Sidecar`: `fn spawn(exe: &Path) -> io::Result<Sidecar>`; `fn send(&mut self, msg: &ToSidecar)`; `fn try_recv(&self) -> Option<FromSidecar>`; `fn is_alive(&mut self) -> bool`.
   - `struct Supervisor` con política: si `is_alive()==false` o no llega `Heartbeat` en 6s → re-spawn con backoff (0.5s, 1s, 2s, máx 5s) y re-`LoadModel`.
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 Fake sidecar de test: `src-tauri/tests/bin/echo_sidecar.rs` que responde `Ready` a `LoadModel` y `Result{id,text:"ok"}` a `Transcribe`.
 
@@ -1022,12 +1022,12 @@ mod tests {
 }
 ```
 
-- [ ] **Step 2: Correr el test para verificar que falla**
+- [x] **Step 2: Correr el test para verificar que falla**
 
 Run: `cargo test -p voice-type supervisor`
 Expected: FALLA.
 
-- [ ] **Step 3: Implementación mínima**
+- [x] **Step 3: Implementación mínima**
 
 ```rust
 use crate::ipc::{decode, encode, FromSidecar, ToSidecar};
@@ -1077,12 +1077,12 @@ impl Sidecar {
 
 `Supervisor`: guarda `LoadModel` params; un tick cada 1s revisa `is_alive()` y última vez que se vio `Heartbeat` (actualizado al drenar `try_recv`); si falla, `Sidecar::spawn` + reenvía `LoadModel` con backoff.
 
-- [ ] **Step 4: Correr los tests**
+- [x] **Step 4: Correr los tests**
 
 Run: `cargo test -p voice-type supervisor`
 Expected: PASA.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src-tauri/src/supervisor.rs src-tauri/src/lib.rs src-tauri/tests/

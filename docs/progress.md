@@ -31,7 +31,7 @@ ALSA**. El objetivo del producto sigue siendo Windows 11. Consecuencia práctica
 | 6 | Sidecar STT (whisper-rs) | Pendiente | Requiere CUDA |
 | 7 | `audio` | Pendiente | Requiere micrófono |
 | 8 | `vad` | Hecho | 8 tests unitarios |
-| 9 | `supervisor` | Pendiente | — |
+| 9 | `supervisor` | Hecho | 8 unitarios + 4 de integración con procesos reales |
 | 10 | `text_injector` | Pendiente | Requiere Windows |
 | 11 | `pipeline` | Pendiente | — |
 | 12 | Hotkeys + comandos | Pendiente | Requiere Windows |
@@ -204,3 +204,39 @@ cuando detecta silencio suficiente después de que hubo voz. Umbral por energía
 cargo test -p voice-type --no-default-features vad  → 8 passed
 cargo clippy ... -D warnings                        → sin warnings
 ```
+
+### Task 9 — `supervisor`
+
+**Qué se hizo.** `Sidecar` (spawn, send, try_recv, is_alive) y la política de
+reinicio partida en dos piezas testeables: `Backoff` (0.5 s, 1 s, 2 s, 4 s,
+techo de 5 s) y `Watchdog`.
+
+**Decisiones que valen la pena.**
+
+- *`Watchdog::tick` no mira el reloj*: recibe el tiempo transcurrido como
+  parámetro. Así la política de reinicio se prueba entera sin dormir el test ni
+  levantar procesos.
+- *También reinicia a un sidecar vivo pero mudo.* Es el caso que importa: un
+  cuelgue de CUDA deja el proceso existiendo, y un supervisor que sólo mire
+  `try_wait` no lo detectaría nunca.
+- *El primer reinicio de una racha es inmediato.* Hacer esperar después de un
+  crash aislado sólo alarga el rato sin dictado; la espera creciente es para el
+  sidecar que directamente no logra arrancar.
+- *`impl Drop for Sidecar`* mata al proceso hijo. Sin eso, un sidecar
+  reemplazado seguiría vivo ocupando VRAM.
+- *`stderr` se hereda* en vez de descartarse como proponía el plan: los logs de
+  whisper.cpp son lo único que dice si agarró CUDA o cayó a CPU.
+- *`Backoff::next_delay`, no `next`*: clippy avisa —con razón— que un `next()`
+  propio se confunde con `Iterator::next`.
+
+**Pruebas ejecutadas.**
+
+```
+cargo test -p voice-type --no-default-features  → 42 unitarios + 4 de integración
+cargo clippy ... -D warnings                    → sin warnings
+```
+
+Los 4 de integración levantan procesos de verdad (`tests/bin/echo_sidecar.rs`,
+que habla el mismo protocolo sin modelo ni GPU): spawn e ida y vuelta por IPC,
+detección de proceso muerto, un reemplazo que vuelve a atender pedidos, y un
+binario inexistente que da error en vez de panic.

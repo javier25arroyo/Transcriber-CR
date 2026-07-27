@@ -9,6 +9,7 @@
 pub mod config;
 pub mod ipc;
 pub mod post_processor;
+pub mod supervisor;
 pub mod vad;
 pub mod vocab_store;
 

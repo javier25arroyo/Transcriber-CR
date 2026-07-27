@@ -17,6 +17,13 @@ path = "src/main.rs"
 # La app sólo se construye con la feature `app`; ver la nota de [features].
 required-features = ["app"]
 
+# Sidecar de mentira para los tests de integración del supervisor: habla el
+# mismo protocolo sin modelo ni GPU. Es un target de test, no parte del
+# producto; Tauri empaqueta sólo el binario `voice-type`.
+[[bin]]
+name = "echo-sidecar"
+path = "tests/bin/echo_sidecar.rs"
+
 [features]
 default = ["app"]
 # `app` agrega todo lo que necesita la aplicación Tauri real (WebView2 en
