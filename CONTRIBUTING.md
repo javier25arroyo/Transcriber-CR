@@ -37,6 +37,12 @@ Voice Type/
 `src-tauri` is both a binary and a library (`voice_type`). `stt-sidecar`
 depends on `voice-type` as a library to reuse the shared `ipc` module.
 
+The Tauri dependency itself sits behind the `app` cargo feature (on by
+default). Turning it off — `--no-default-features` — builds only the library:
+the pure, deterministic modules, with no GUI toolkit and no built frontend
+required. That is what makes the modules testable on a machine that isn't the
+Windows target box.
+
 **This dependency direction matters and must not be reversed.** `stt-sidecar`
 is the only crate that needs to compile `whisper-rs` with CUDA. If
 `src-tauri` ever depended on `stt-sidecar` (or pulled in `whisper-rs`
@@ -64,9 +70,14 @@ Three tiers, from cheapest to most expensive:
 
 | Command | What it covers | Runs on CI? |
 |---|---|---|
-| `cargo test -p voice-type` | Pure logic in the main crate — no hardware, no GPU | Yes |
+| `cargo test -p voice-type --no-default-features` | Pure logic only — no Tauri, no built frontend, runs on any OS | Yes (Linux job) |
+| `cargo test -p voice-type` | The same tests plus everything the Tauri app pulls in; needs `npm run build` first | Yes (Windows job) |
 | `npx vitest run` | Frontend unit tests | Yes |
 | `cargo test -p stt-sidecar -- --ignored` | Real transcription against a local model, requires CUDA and a downloaded model | No — local only |
+
+The first row is the one to reach for while working on a module: it skips the
+`app` feature, so `cargo` never has to build Tauri or find a WebView. The
+Windows job is what proves the app itself still compiles.
 
 ## Manual verification
 

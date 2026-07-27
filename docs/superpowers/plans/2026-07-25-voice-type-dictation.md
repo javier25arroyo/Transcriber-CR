@@ -75,7 +75,7 @@ Los módulos de `src-tauri/src` se exponen vía `lib.rs` para poder testearlos c
 **Interfaces:**
 - Produces: proyecto que compila y abre una ventana; base para todos los módulos.
 
-- [ ] **Step 1: Inicializar git y scaffold Tauri**
+- [x] **Step 1: Inicializar git y scaffold Tauri**
 
 Requisitos previos (instalar una sola vez): Rust (`rustup`), Node LTS, y para el sidecar CUDA: CUDA Toolkit 12.x. Verificar: `rustc --version`, `node --version`, `nvcc --version`.
 
@@ -87,7 +87,7 @@ npm create tauri-app@latest . -- --template svelte-ts --manager npm --yes
 
 Si el generador se niega por carpeta no vacía (existe `docs/`), crear en subcarpeta temporal y mover, o usar `--force`. Ajustar `src-tauri/tauri.conf.json` → `productName: "Voice Type"`, `identifier: "com.javier.voicetype"`.
 
-- [ ] **Step 2: Convertir a workspace y verificar build**
+- [x] **Step 2: Convertir a workspace y verificar build**
 
 Editar `Cargo.toml` raíz:
 
@@ -102,7 +102,14 @@ resolver = "2"
 Run: `npm run tauri dev`
 Expected: abre una ventana de Tauri sin errores. Cerrar.
 
-- [ ] **Step 4: Retirar las guardas temporales del CI**
+> **Pendiente de verificación manual en Windows 11.** El scaffold se creó a
+> mano (el generador `npm create tauri-app` es interactivo y la carpeta ya
+> tenía `docs/`). Lo verificado automáticamente hasta ahora: `npm run build`,
+> `npx vitest run`, `npx svelte-check` y
+> `cargo test -p voice-type --no-default-features`. Ver
+> [docs/progress.md](../../progress.md).
+
+- [x] **Step 4: Retirar las guardas temporales del CI**
 
 `Cargo.toml` y `package.json` ya existen. En `.github/workflows/ci.yml`,
 quitar los `if: hashFiles('Cargo.toml') != ''` y
@@ -112,7 +119,7 @@ quedara en rojo antes de que hubiera código — ver
 `docs/superpowers/specs/2026-07-26-sdlc-docs-design.md` §7). A partir de este
 commit, la ausencia de esos manifiestos debe volver a hacer fallar el CI.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A
