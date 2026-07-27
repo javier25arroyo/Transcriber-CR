@@ -403,7 +403,7 @@ git commit -m "feat: post_processor with word-boundary replacements and segment 
   - `fn encode<T: Serialize>(msg: &T) -> String` (JSON + `\n`)
   - `fn decode<T: DeserializeOwned>(line: &str) -> Result<T, serde_json::Error>`
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 ```rust
 #[cfg(test)]
@@ -434,12 +434,12 @@ mod tests {
 }
 ```
 
-- [ ] **Step 2: Correr el test para verificar que falla**
+- [x] **Step 2: Correr el test para verificar que falla**
 
 Run: `cargo test -p voice-type ipc`
 Expected: FALLA.
 
-- [ ] **Step 3: Implementación mínima**
+- [x] **Step 3: Implementación mínima**
 
 ```rust
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
@@ -472,12 +472,12 @@ pub fn decode<T: DeserializeOwned>(line: &str) -> Result<T, serde_json::Error> {
 }
 ```
 
-- [ ] **Step 4: Correr los tests**
+- [x] **Step 4: Correr los tests**
 
 Run: `cargo test -p voice-type ipc`
 Expected: PASA.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src-tauri/src/ipc.rs src-tauri/src/lib.rs

@@ -26,7 +26,7 @@ ALSA**. El objetivo del producto sigue siendo Windows 11. Consecuencia práctica
 | 1 | Scaffold Tauri v2 + Svelte | Hecho (falta Step 3) | `vite build`, `vitest`, `svelte-check`, `cargo test --no-default-features` |
 | 2 | `vocab_store` | Hecho | 6 tests unitarios |
 | 3 | `post_processor` | Hecho | 9 tests unitarios |
-| 4 | `ipc` | Pendiente | — |
+| 4 | `ipc` | Hecho | 5 tests unitarios |
 | 5 | `config` | Pendiente | — |
 | 6 | Sidecar STT (whisper-rs) | Pendiente | Requiere CUDA |
 | 7 | `audio` | Pendiente | Requiere micrófono |
@@ -118,4 +118,26 @@ bytes, y hay un test con `CANCIÓN` que fija el caso. También se cubrió el
 ```
 cargo test -p voice-type --no-default-features post_processor  → 9 passed
 cargo clippy ... -D warnings                                   → sin warnings
+```
+
+### Task 4 — `ipc`
+
+**Qué se hizo.** `ToSidecar` (LoadModel/Transcribe/Shutdown), `FromSidecar`
+(Ready/Result/Heartbeat/Error) y el par `encode`/`decode` con framing de una
+línea JSON por mensaje.
+
+`decode` recorta el salto final, así que `decode(&encode(&msg))` funciona sin
+que quien llama tenga que acordarse de hacer `.trim()`. Hay un test que fija que
+un texto con salto de línea adentro no parte el framing.
+
+**Anotado para el futuro.** Mandar el PCM como números en JSON es caro (unos
+80 000 valores por segmento de 5 s). Se deja así porque el canal es una tubería
+local y serializar cuesta mucho menos que transcribir; si alguna vez aparece
+como cuello de botella, pasar a framing binario merece su propio ADR.
+
+**Pruebas ejecutadas.**
+
+```
+cargo test -p voice-type --no-default-features ipc  → 5 passed
+cargo clippy ... -D warnings                        → sin warnings
 ```
