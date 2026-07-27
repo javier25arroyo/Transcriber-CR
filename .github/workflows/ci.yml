@@ -77,6 +77,14 @@ jobs:
       - name: Clippy (--features injector)
         run: cargo clippy -p voice-type --no-default-features --features injector --all-targets -- -D warnings
 
+      # El sidecar sí se puede testear acá: whisper-rs está detrás de la feature
+      # `whisper`, apagada por defecto, así que sin CUDA se compila igual y se
+      # prueba todo el manejo del protocolo contra un motor de mentira.
+      - name: Clippy y tests del sidecar (sin la feature whisper)
+        run: |
+          cargo clippy -p stt-sidecar --all-targets -- -D warnings
+          cargo test -p stt-sidecar
+
   frontend:
     name: Frontend (vitest, svelte-check)
     runs-on: ubuntu-latest

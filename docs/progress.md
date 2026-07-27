@@ -28,7 +28,7 @@ ALSA**. El objetivo del producto sigue siendo Windows 11. Consecuencia práctica
 | 3 | `post_processor` | Hecho | 9 tests unitarios |
 | 4 | `ipc` | Hecho | 5 tests unitarios |
 | 5 | `config` | Hecho | 6 tests unitarios + smoke test del sidecar |
-| 6 | Sidecar STT (whisper-rs) | Pendiente | Requiere CUDA |
+| 6 | Sidecar STT (whisper-rs) | Preparada: protocolo hecho | 6 tests contra un motor de mentira; falta el motor real |
 | 7 | `audio` | Parcial: conversión hecha | 10 tests unitarios; captura pendiente |
 | 8 | `vad` | Hecho | 8 tests unitarios |
 | 9 | `supervisor` | Hecho | 8 unitarios + 4 de integración con procesos reales |
@@ -46,16 +46,21 @@ Ordenado por lo que desbloquea más:
 1. **Task 1, step 3** — `npm run tauri dev` tiene que abrir la ventana. Es la
    primera confirmación de que el scaffold está bien; todo lo de UI depende de
    esto.
-2. **Task 6** — el motor de Whisper en `stt-sidecar`. Hoy responde `Error` a
-   `LoadModel` y `Transcribe`; el loop de IPC y el heartbeat ya están.
+2. **Task 6** — implementar `Engine` con `whisper-rs`. El protocolo, el loop de
+   IPC y el heartbeat ya están y testeados; lo único que falta es la llamada a
+   whisper.cpp detrás del trait, con la feature `whisper`.
 3. **Task 7, captura** — `AudioCapture` con `cpal` y el ejemplo `mic_probe`.
    En el callback va `Resampler16k`, no `resample_to_16k`.
 4. **Tasks 11 a 15** — pipeline, hotkeys, píldora, popup de vocabulario y el
    servicio (bandeja, autostart, descarga del modelo).
 
-También queda verificar a mano el pegado real del `text_injector` (compila,
-pero compilar no es pegar bien en el Bloc de notas) y que el job de Windows del
-CI pase: la app con la feature `app` nunca se compiló, sólo la librería.
+También queda verificar a mano el pegado real del `text_injector`: compila, pero
+compilar no es pegar bien en el Bloc de notas.
+
+**El job de Windows del CI ya pasa** (desde el commit de los iconos): la app con
+la feature `app` compila, clippy queda limpio y los tests corren. Eso confirma
+que el scaffold de Tauri está bien armado; lo que sigue sin verificar es el
+comportamiento en runtime, que es harina de otro costal.
 
 ## Detalle
 
@@ -459,3 +464,43 @@ cargo test -p voice-type --no-default-features                 → 75 unitarios 
 
 **Pendiente (Windows).** `ensure_model` con la descarga real, la bandeja, el
 autostart, la instancia única y el logging con rotación diaria.
+
+### Task 6 — Sidecar STT (preparada, falta el motor)
+
+**Qué se hizo.** El sidecar quedó partido en dos: `stt-sidecar/src/lib.rs`
+maneja el protocolo contra el trait `Engine`, y el motor real es una
+implementación más de ese trait.
+
+**Por qué.** `whisper-rs` necesita el CUDA Toolkit para compilar y una GPU para
+correr. Con el manejo de mensajes pegado al motor, nada de eso se podía probar
+en ningún CI. Con el trait, lo único que queda sin cobertura automática es la
+llamada a whisper.cpp; todo el resto —qué contestar a cada mensaje, qué pasa si
+el modelo no carga, que el `id` vuelva igual— se testea con un motor de mentira
+en cualquier máquina.
+
+`whisper-rs` va detrás de la feature `whisper`, apagada por defecto. El build de
+producción es `cargo build -p stt-sidecar --features whisper --release`; sin
+ella, el sidecar arranca igual y contesta un error que dice exactamente qué
+falta.
+
+**Detalle que importa.** Cuando falla un segmento, el error lleva el `id`
+adentro del mensaje. Sin eso, del otro lado no hay forma de saber qué segmento
+se perdió.
+
+**Pruebas ejecutadas.**
+
+```
+cargo test -p stt-sidecar   → 6 passed
+cargo clippy -p stt-sidecar --all-targets -- -D warnings  → sin warnings
+```
+
+Smoke test del binario, mandándole LoadModel, una línea basura, Transcribe y
+Shutdown:
+
+```
+{"type":"Error","message":"sidecar compilado sin motor STT: falta la feature `whisper` (Task 6 del plan)"}
+{"type":"Error","message":"segmento 9: sidecar compilado sin motor STT: falta la feature `whisper` (Task 6 del plan)"}
+```
+
+**Pendiente (Windows con CUDA).** Implementar `Engine` con `whisper-rs` y el
+test de integración contra un modelo local.

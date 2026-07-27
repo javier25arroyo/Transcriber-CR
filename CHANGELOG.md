@@ -13,8 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (librería + binario Tauri v2) y frontend Svelte 5 + Vite + TypeScript.
 - Features de cargo `app` e `injector`, que aíslan las dependencias de Tauri y
   del portapapeles para poder compilar y testear la lógica fuera de Windows.
-- Crate `stt-sidecar` con el loop de IPC y el heartbeat (sin el motor de
-  Whisper todavía).
+- Crate `stt-sidecar` con el loop de IPC, el heartbeat y el manejo del
+  protocolo contra el trait `Engine`. El motor real entra con la feature
+  `whisper`, apagada por defecto.
+- Módulo `pipeline`: qué se escribe en la ventana por cada segmento
+  transcripto.
+- Módulo `hotkeys`: `DictationState` y la semántica del toggle.
+- Módulo `model_download`: rutas, URL y validación del nombre del modelo.
+- Píldora flotante y popup de vocabulario en el frontend, con los iconos de la
+  app generados desde `app-icon.svg`.
 - Módulo `vocab_store`: términos y correcciones del vocabulario, con
   persistencia en JSON.
 - Módulo `post_processor`: reemplazos por palabra completa y unión de segmentos.

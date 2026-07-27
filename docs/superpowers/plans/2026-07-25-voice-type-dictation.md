@@ -610,6 +610,14 @@ git commit -m "feat: AppConfig persistence and shared lib for sidecar"
 - Consumes: `voice_type::ipc::{ToSidecar, FromSidecar, encode, decode}`.
 - Produces: binario que lee `ToSidecar` de stdin (una línea JSON por mensaje) y escribe `FromSidecar` a stdout. Emite `Ready` al cargar modelo, `Result` por cada `Transcribe`, `Heartbeat` cada 2s, `Error` ante fallo.
 
+> **Preparada.** El sidecar ya está partido en dos: el manejo del protocolo
+> (`stt-sidecar/src/lib.rs`) contra el trait `Engine`, testeado con un motor de
+> mentira y sin GPU, y el motor real, que es lo único que falta. `whisper-rs`
+> va detrás de la feature `whisper` (apagada por defecto) para que el crate
+> siga compilando en el CI sin CUDA Toolkit. Lo que queda de esta task es
+> implementar `Engine` con `whisper-rs` y el test de integración con un modelo
+> local.
+
 - [ ] **Step 1: Agregar dependencia y helper de transcripción**
 
 `stt-sidecar/Cargo.toml`:

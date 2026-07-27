@@ -16,3 +16,12 @@ repository.workspace = true
 # stt-sidecar → voice-type, nunca al revés. Ver ADR 0001.
 voice-type = { path = "../src-tauri", default-features = false }
 serde_json = "1"
+
+# El motor real (whisper.cpp con CUDA) entra con esta feature, apagada por
+# defecto. Así el crate compila y se testea en cualquier máquina —incluido el
+# CI, que no tiene CUDA Toolkit— y el build de producción usa
+# `cargo build -p stt-sidecar --features whisper`. Sin la feature, el sidecar
+# arranca igual y contesta un error claro a LoadModel y Transcribe.
+[features]
+default = []
+whisper = []

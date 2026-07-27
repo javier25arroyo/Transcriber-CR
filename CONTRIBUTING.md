@@ -37,6 +37,11 @@ Voice Type/
 `src-tauri` is both a binary and a library (`voice_type`). `stt-sidecar`
 depends on `voice-type` as a library to reuse the shared `ipc` module.
 
+`whisper-rs` sits behind `stt-sidecar`'s `whisper` cargo feature, off by
+default. The sidecar's protocol handling talks to an `Engine` trait, so it
+compiles and is tested without the CUDA toolkit; production builds use
+`cargo build -p stt-sidecar --features whisper --release`.
+
 The Tauri dependency itself sits behind the `app` cargo feature (on by
 default). Turning it off — `--no-default-features` — builds only the library:
 the pure, deterministic modules, with no GUI toolkit and no built frontend
@@ -73,7 +78,8 @@ Three tiers, from cheapest to most expensive:
 | `cargo test -p voice-type --no-default-features` | Pure logic only — no Tauri, no built frontend, runs on any OS | Yes (Linux job) |
 | `cargo test -p voice-type` | The same tests plus everything the Tauri app pulls in; needs `npm run build` first | Yes (Windows job) |
 | `npx vitest run` | Frontend unit tests | Yes |
-| `cargo test -p stt-sidecar -- --ignored` | Real transcription against a local model, requires CUDA and a downloaded model | No — local only |
+| `cargo test -p stt-sidecar` | The sidecar's protocol handling, against a fake engine — no CUDA needed | Yes (Linux job) |
+| `cargo test -p stt-sidecar --features whisper -- --ignored` | Real transcription against a local model, requires CUDA and a downloaded model | No — local only |
 
 The first row is the one to reach for while working on a module: it skips the
 `app` feature, so `cargo` never has to build Tauri or find a WebView. The

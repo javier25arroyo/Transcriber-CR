@@ -1,10 +1,9 @@
 //! Sidecar de STT: proceso aislado que carga el modelo de Whisper una vez y
 //! transcribe los segmentos que le manda el proceso principal.
 //!
-//! Acá está el esqueleto del loop de IPC y el heartbeat. El motor real
-//! (`whisper-rs` con CUDA) se enchufa en la Task 6 del plan de implementación;
-//! hasta entonces `Transcribe` responde `Error`, que es exactamente lo que el
-//! supervisor sabe manejar.
+//! Este archivo es sólo la cáscara: leer stdin, escribir stdout, latir. Qué
+//! contestar a cada mensaje vive en `lib.rs`, que se testea sin procesos, y el
+//! motor está detrás del trait `Engine`.
 
 use std::io::{BufRead, Write};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -12,15 +11,18 @@ use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
 
+use stt_sidecar::{handle, Engine, Flow, UnavailableEngine};
 use voice_type::ipc::{decode, encode, FromSidecar, ToSidecar};
 
 /// Cada cuánto se manda señal de vida. El supervisor espera varios de estos
-/// antes de dar por colgado al proceso (ver Task 9).
+/// antes de dar por colgado al proceso (ver `voice_type::supervisor`).
 const HEARTBEAT: Duration = Duration::from_secs(2);
 
 fn main() {
     let stop = Arc::new(AtomicBool::new(false));
     spawn_heartbeat(Arc::clone(&stop));
+
+    let mut engine = build_engine();
 
     let stdin = std::io::stdin();
     for line in stdin.lock().lines() {
@@ -32,18 +34,23 @@ fn main() {
             continue;
         };
 
-        match msg {
-            ToSidecar::LoadModel { .. } => emit(&FromSidecar::Error {
-                message: "motor STT todavía no implementado (Task 6 del plan)".into(),
-            }),
-            ToSidecar::Transcribe { .. } => emit(&FromSidecar::Error {
-                message: "motor STT todavía no implementado (Task 6 del plan)".into(),
-            }),
-            ToSidecar::Shutdown => break,
+        let (respuesta, flow) = handle(msg, engine.as_mut());
+        if let Some(msg) = respuesta {
+            emit(&msg);
+        }
+        if flow == Flow::Stop {
+            break;
         }
     }
 
     stop.store(true, Ordering::Relaxed);
+}
+
+/// El motor real entra con la feature `whisper` (Task 6 del plan). Sin ella el
+/// sidecar arranca igual y contesta un error claro, que es lo que el supervisor
+/// sabe manejar.
+fn build_engine() -> Box<dyn Engine> {
+    Box::new(UnavailableEngine)
 }
 
 fn spawn_heartbeat(stop: Arc<AtomicBool>) {
