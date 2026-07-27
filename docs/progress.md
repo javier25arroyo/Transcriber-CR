@@ -32,7 +32,7 @@ ALSA**. El objetivo del producto sigue siendo Windows 11. Consecuencia práctica
 | 7 | `audio` | Parcial: conversión hecha | 10 tests unitarios; captura pendiente |
 | 8 | `vad` | Hecho | 8 tests unitarios |
 | 9 | `supervisor` | Hecho | 8 unitarios + 4 de integración con procesos reales |
-| 10 | `text_injector` | Lógica hecha | 4 tests unitarios; el pegado real queda pendiente |
+| 10 | `text_injector` | Lógica hecha | 4 tests unitarios + compila con `--features injector`; el pegado real queda pendiente |
 | 11 | `pipeline` | Pendiente | — |
 | 12 | Hotkeys + comandos | Pendiente | Requiere Windows |
 | 13 | `PillWidget` | Pendiente | Verificación visual |
@@ -268,10 +268,15 @@ Uno de los tests mira el portapapeles *desde adentro* del pegado (estado
 compartido con `Rc<RefCell<_>>`) para fijar el orden real de las operaciones, no
 sólo que la closure se haya llamado.
 
-**Pendiente de verificación manual (Windows 11).** El pegado de verdad
-(`paste_ctrl_v` + `SystemClipboard`) y el ejemplo `inject_probe` del Step 5:
-`arboard` y `enigo` sólo entran con la feature `app`, que no se puede compilar
-en este entorno Linux.
+**Feature `injector`.** `arboard` y `enigo` quedaron en su propia feature en vez
+de colgar de `app`: no dependen de Tauri, así que su código real *sí* compila en
+Linux. Eso saca al módulo que toca el portapapeles del usuario de la lista de
+"código nunca compilado", y el CI lo revisa en el job de Linux con
+`--features injector`.
+
+**Pendiente de verificación manual (Windows 11).** Que el pegado funcione de
+verdad contra otra aplicación, y el ejemplo `inject_probe` del Step 5. Compilar
+no es lo mismo que pegar bien en el Bloc de notas.
 
 ### Task 7 — `audio` (parcial)
 

@@ -71,6 +71,12 @@ jobs:
       - name: Test (--no-default-features)
         run: cargo test -p voice-type --no-default-features
 
+      # `injector` (arboard + enigo) es parte de la app pero no depende de
+      # Tauri, así que su código real sí se puede compilar acá. Cubre el módulo
+      # que toca el portapapeles del usuario sin esperar al job de Windows.
+      - name: Clippy (--features injector)
+        run: cargo clippy -p voice-type --no-default-features --features injector --all-targets -- -D warnings
+
   frontend:
     name: Frontend (vitest, svelte-check)
     runs-on: ubuntu-latest

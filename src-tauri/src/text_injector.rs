@@ -33,7 +33,7 @@ pub fn inject<C: Clipboard>(clipboard: &mut C, paste: impl FnOnce(), text: &str)
     clipboard.set(&original);
 }
 
-#[cfg(feature = "app")]
+#[cfg(feature = "injector")]
 mod system {
     use super::Clipboard;
     use std::time::Duration;
@@ -78,7 +78,7 @@ mod system {
     }
 }
 
-#[cfg(feature = "app")]
+#[cfg(feature = "injector")]
 pub use system::{paste_ctrl_v, SystemClipboard};
 
 #[cfg(test)]
