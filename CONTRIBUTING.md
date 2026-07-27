@@ -119,6 +119,39 @@ verified it manually — the CI template has a field for this.
 - No mandatory reviewer for now — this is a one-person project. That
   requirement gets added the day a second contributor shows up.
 
+## Codebase memory MCP (optional, for coding agents)
+
+`.mcp.json` at the repo root registers [`codebase-memory-mcp`](https://github.com/DeusData/codebase-memory-mcp)
+as a project-scoped MCP server: a local code-intelligence index (call graphs,
+symbol search) that Claude Code and similar agents can query instead of
+re-grepping the tree on every task. It's optional tooling for whoever is
+driving an agent against this repo — nothing in the Voice Type app depends on
+it, and it's not part of the build.
+
+Install the binary yourself; the repo only carries the pointer to it:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.sh | bash -s -- --skip-config
+```
+
+`--skip-config` matters. Without it, the installer's own `install` step edits
+the configuration of every supported coding-agent client it finds on your
+account (43 of them, per its own docs) — broader than "just this project" and
+not something to run unreviewed. `.mcp.json` here is the project-scoped,
+diffable alternative: it only takes effect for whoever opens this repo, and
+you can see exactly what it does before trusting it.
+
+The install script downloads a prebuilt archive and verifies its SHA-256
+against a `checksums.txt` published alongside it before running anything —
+worth knowing, but that only proves the download wasn't corrupted or swapped
+in transit, not that the tool itself is trustworthy. Review it with the same
+scrutiny you'd give any third-party binary before wiring it into your agent's
+toolchain.
+
+Make sure the install directory is on your `PATH` (the installer warns if it
+isn't; default is `~/.local/bin`), then restart your coding agent so it picks
+up `.mcp.json`.
+
 ## Regenerating the app icons
 
 `src-tauri/icons/` is generated from `app-icon.svg` at the repo root:
