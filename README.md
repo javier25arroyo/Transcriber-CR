@@ -43,8 +43,8 @@ nvcc --version
 ## Quick start
 
 ```bash
-npm install
-npm run tauri dev
+pnpm install
+pnpm tauri dev
 ```
 
 The Whisper model downloads automatically on first run.
@@ -143,8 +143,8 @@ nvcc --version
 ## Arranque rápido
 
 ```bash
-npm install
-npm run tauri dev
+pnpm install
+pnpm tauri dev
 ```
 
 El modelo de Whisper se descarga solo en el primer arranque.
