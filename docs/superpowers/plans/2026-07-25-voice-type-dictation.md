@@ -102,11 +102,22 @@ resolver = "2"
 Run: `npm run tauri dev`
 Expected: abre una ventana de Tauri sin errores. Cerrar.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 4: Retirar las guardas temporales del CI**
+
+`Cargo.toml` y `package.json` ya existen. En `.github/workflows/ci.yml`,
+quitar los `if: hashFiles('Cargo.toml') != ''` y
+`if: hashFiles('package.json') != ''` de cada step (se agregaron para que el
+CI no quedara en rojo antes de que hubiera código — ver
+`docs/superpowers/specs/2026-07-26-sdlc-docs-design.md` §7). A partir de este
+commit, la ausencia de esos manifiestos debe volver a hacer fallar el CI.
+
+- [ ] **Step 5: Commit**
 
 ```bash
 git add -A
 git commit -m "chore: scaffold Tauri v2 + Svelte project"
+git add .github/workflows/ci.yml
+git commit -m "ci: remove empty-repo guards now that manifests exist"
 ```
 
 ---

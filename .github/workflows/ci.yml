@@ -21,16 +21,25 @@ jobs:
       - name: Cache cargo registry and build
         uses: Swatinem/rust-cache@v2
 
+      # These steps need a workspace Cargo.toml, which doesn't exist until
+      # Task 1 of the implementation plan (scaffold) lands. Skipping instead
+      # of failing keeps main's required checks meaningful once code exists,
+      # without a permanent red X on an empty repo. Remove this guard once
+      # Cargo.toml is committed — a real absence of it at that point should
+      # fail loudly.
       - name: Check formatting
+        if: hashFiles('Cargo.toml') != ''
         run: cargo fmt --all -- --check
 
       # Only the voice-type package: stt-sidecar depends on whisper-rs with
       # the `cuda` feature, which needs the CUDA Toolkit — not available on
       # GitHub-hosted runners. See docs/adr/0001-isolated-stt-sidecar.md.
       - name: Clippy (voice-type only, no GPU crate)
+        if: hashFiles('Cargo.toml') != ''
         run: cargo clippy -p voice-type --all-targets -- -D warnings
 
       - name: Test (voice-type only, no GPU crate)
+        if: hashFiles('Cargo.toml') != ''
         run: cargo test -p voice-type
 
   frontend:
@@ -45,11 +54,16 @@ jobs:
           node-version: lts/*
           cache: npm
 
+      # Same reasoning as the Rust job's guards above: no package.json until
+      # Task 1's scaffold lands. Remove this guard once it's committed.
       - name: Install dependencies
+        if: hashFiles('package.json') != ''
         run: npm ci
 
       - name: Unit tests
+        if: hashFiles('package.json') != ''
         run: npx vitest run
 
       - name: Svelte type check
+        if: hashFiles('package.json') != ''
         run: npx svelte-check

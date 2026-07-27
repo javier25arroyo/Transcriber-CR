@@ -228,9 +228,12 @@ que necesitan modelo están marcados `#[ignore]` y solo corren en local.
 2. `npx vitest run`
 3. `npx svelte-check`
 
-El workflow se agrega antes de que exista el código. **Va a fallar hasta que la
-Task 1 del plan cree el scaffold**, y eso es esperado, no un problema a
-diagnosticar.
+El workflow se agrega antes de que exista el código. Cada paso que invoca
+`cargo` o `npm` está condicionado a `hashFiles('Cargo.toml') != ''` /
+`hashFiles('package.json') != ''`: si el manifiesto no existe todavía, el paso
+se salta (el job queda en verde) en vez de fallar. La guarda se retira en la
+Task 1 del plan, cuando el scaffold crea esos manifiestos — a partir de ahí,
+la ausencia de `Cargo.toml` o `package.json` sí debe hacer fallar el CI.
 
 ## 8. Versionado y releases
 
@@ -258,7 +261,7 @@ trabajo, no después.
 
 ## 10. Cambios al plan de implementación existente
 
-Las decisiones de este diseño modifican tres puntos del plan del 2026-07-25.
+Las decisiones de este diseño modifican cuatro puntos del plan del 2026-07-25.
 Estos cambios se aplican al plan cuando se ejecute:
 
 1. **Global Constraints** — donde dice "commits frecuentes, uno por tarea como
@@ -273,6 +276,10 @@ Estos cambios se aplican al plan cuando se ejecute:
    `scripts/generate-test-fixtures.ps1`; el `.wav` resultante también se
    versiona, por ser sintético y no contener datos personales. Se documenta en
    CONTRIBUTING cómo regenerarlo.
+4. **Task 1** — agrega un step final: retirar de `.github/workflows/ci.yml`
+   los `if: hashFiles(...) != ''` en los pasos de `cargo` y `npm` (ver §7),
+   ahora que `Cargo.toml` y `package.json` existen. El CI debe volver a fallar
+   ante la ausencia de esos archivos, no saltear el paso en silencio.
 
 Además, cada task del plan pasa a incluir la actualización del CHANGELOG dentro
 de su PR.
@@ -291,7 +298,10 @@ de su PR.
 
 - **README bilingüe se desincroniza.** Mitigado con un checkbox en la plantilla
   de PR; sigue dependiendo de la disciplina de quien edita.
-- **CI en rojo desde el día uno** hasta que exista el scaffold. Documentado en §7
+- **Las guardas de CI se olvidan de retirar.** Si el scaffold llega y `Cargo.toml`
+  o `package.json` existen pero el guard sigue ahí por descuido, un paso roto
+  se saltearía en silencio en vez de fallar. Mitigado: la Task 1 del plan
+  incluye explícitamente retirar la guarda como parte del checklist.
   para que no se confunda con una falla real.
 - **CI da cobertura parcial:** todo lo que toca GPU, micrófono, portapapeles y
   ventanas queda fuera. La verificación manual listada en CONTRIBUTING es la
