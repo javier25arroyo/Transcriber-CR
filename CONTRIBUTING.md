@@ -106,6 +106,18 @@ verified it manually — the CI template has a field for this.
 - No mandatory reviewer for now — this is a one-person project. That
   requirement gets added the day a second contributor shows up.
 
+## Regenerating the app icons
+
+`src-tauri/icons/` is generated from `app-icon.svg` at the repo root:
+
+```bash
+npx tauri icon app-icon.svg -o src-tauri/icons
+```
+
+The generator also emits macOS, iOS and Android variants; delete them. v1 targets
+Windows only, and `icons/icon.ico` is the one `tauri-build` actually requires —
+without it the Windows build fails even with bundling turned off.
+
 ## Regenerating test fixtures
 
 The STT integration test fixture (`stt-sidecar/tests/fixtures/*.wav`) is

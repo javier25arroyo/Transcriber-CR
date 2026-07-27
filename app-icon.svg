@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!--
+    Icono de la app. Fuente para `npx tauri icon app-icon.svg -o src-tauri/icons`,
+    que genera el juego completo (icon.ico, .icns y los PNG por tamaño).
+    Un micrófono sobre fondo oscuro, con las ondas de la píldora a los costados.
+  -->
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a3a3f"/>
+      <stop offset="1" stop-color="#1c1c1e"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1024" height="1024" rx="228" ry="228" fill="url(#fondo)"/>
+
+  <!-- Cápsula del micrófono -->
+  <rect x="432" y="232" width="160" height="330" rx="80" ry="80" fill="#f5f5f7"/>
+
+  <!-- Arco y pie -->
+  <path d="M330 470 a182 182 0 0 0 364 0"
+        fill="none" stroke="#f5f5f7" stroke-width="52" stroke-linecap="round"/>
+  <path d="M512 652 v104" stroke="#f5f5f7" stroke-width="52" stroke-linecap="round"/>
+
+  <!-- Ondas: el mismo lenguaje visual que la píldora en estado Listening -->
+  <g stroke="#f5f5f7" stroke-width="40" stroke-linecap="round" opacity="0.55">
+    <path d="M236 452 v120"/>
+    <path d="M788 452 v120"/>
+  </g>
+  <g stroke="#f5f5f7" stroke-width="40" stroke-linecap="round" opacity="0.3">
+    <path d="M140 482 v60"/>
+    <path d="M884 482 v60"/>
+  </g>
+</svg>

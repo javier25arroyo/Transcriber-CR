@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Permisos de la ventana de la píldora. Arranca con lo mínimo: `core:default` alcanza para que el frontend llame comandos propios con invoke y escuche eventos. Los permisos de los plugins (atajo global, autostart) se agregan en la Task 15, cuando entren esos plugins.",
+  "windows": ["pill"],
+  "permissions": ["core:default"]
+}
