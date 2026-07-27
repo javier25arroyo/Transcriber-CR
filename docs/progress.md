@@ -24,7 +24,7 @@ ALSA**. El objetivo del producto sigue siendo Windows 11. Consecuencia práctica
 | Task | Módulo | Estado | Verificación |
 |---|---|---|---|
 | 1 | Scaffold Tauri v2 + Svelte | Hecho (falta Step 3) | `vite build`, `vitest`, `svelte-check`, `cargo test --no-default-features` |
-| 2 | `vocab_store` | Pendiente | — |
+| 2 | `vocab_store` | Hecho | 6 tests unitarios |
 | 3 | `post_processor` | Pendiente | — |
 | 4 | `ipc` | Pendiente | — |
 | 5 | `config` | Pendiente | — |
@@ -79,3 +79,23 @@ cargo test -p voice-type --no-default-features             → OK
 **Pendiente de verificación manual (Windows 11).** Step 3 del plan:
 `npm run tauri dev` tiene que abrir la ventana. El bundle está desactivado
 (`bundle.active: false`) hasta la Task 15, que es la que agrega los iconos.
+
+### Task 2 — `vocab_store`
+
+**Qué se hizo.** `Vocab` con `terms` (sesgo para Whisper) y `replacements`
+(correcciones deterministas), persistencia en JSON y `initial_prompt()`.
+
+**Desvío respecto del plan.** El test del plan pide que agregar dos veces la
+misma corrección deje un solo reemplazo, pero el snippet de implementación del
+propio plan hacía `push` incondicional. Ganó el test: `add` ahora indexa por
+`heard` (case-insensitive, igual que el `post_processor` que lo consume) y pisa
+el destino anterior en vez de acumular una entrada muerta. Se agregaron dos
+tests que fijan ese comportamiento: pisar el destino de un `heard` conocido, y
+conservar varias formas mal escuchadas del mismo término.
+
+**Pruebas ejecutadas.**
+
+```
+cargo test -p voice-type --no-default-features vocab_store  → 6 passed
+cargo clippy ... -D warnings                                → sin warnings
+```

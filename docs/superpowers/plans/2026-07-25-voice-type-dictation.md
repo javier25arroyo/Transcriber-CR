@@ -147,7 +147,7 @@ git commit -m "ci: remove empty-repo guards now that manifests exist"
     - `fn add(&mut self, heard: &str, correct: &str)` (agrega término `correct` a `terms` sin duplicar, y una `Replacement`)
     - `fn initial_prompt(&self) -> String` (concatena términos para sesgo de whisper)
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 ```rust
 #[cfg(test)]
@@ -197,12 +197,12 @@ mod tests {
 
 Agregar `tempfile` a `[dev-dependencies]` en `src-tauri/Cargo.toml`.
 
-- [ ] **Step 2: Correr el test para verificar que falla**
+- [x] **Step 2: Correr el test para verificar que falla**
 
 Run: `cargo test -p voice-type vocab_store`
 Expected: FALLA (no compila: `Vocab` no existe).
 
-- [ ] **Step 3: Implementación mínima**
+- [x] **Step 3: Implementación mínima**
 
 ```rust
 use serde::{Deserialize, Serialize};
@@ -253,12 +253,12 @@ impl Vocab {
 }
 ```
 
-- [ ] **Step 4: Correr los tests**
+- [x] **Step 4: Correr los tests**
 
 Run: `cargo test -p voice-type vocab_store`
 Expected: PASA.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src-tauri/src/vocab_store.rs src-tauri/src/lib.rs src-tauri/Cargo.toml

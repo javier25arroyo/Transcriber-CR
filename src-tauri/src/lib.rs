@@ -6,6 +6,8 @@
 //! aíslan el efecto detrás de un trait o de una función chica, y el resto —el
 //! algoritmo— se testea sin hardware. Ver CONTRIBUTING.md § Running tests.
 
+pub mod vocab_store;
+
 /// Punto de entrada de la app Tauri. Vive en la librería para que `main.rs`
 /// quede en una sola línea, como recomienda la plantilla de Tauri v2.
 #[cfg(feature = "app")]
