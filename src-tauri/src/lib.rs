@@ -9,6 +9,7 @@
 pub mod config;
 pub mod ipc;
 pub mod post_processor;
+pub mod vad;
 pub mod vocab_store;
 
 /// Punto de entrada de la app Tauri. Vive en la librería para que `main.rs`

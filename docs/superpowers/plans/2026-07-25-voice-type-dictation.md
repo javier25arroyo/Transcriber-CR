@@ -868,7 +868,7 @@ git commit -m "feat: audio capture with mono downmix and 16k resample"
   - `impl Segmenter`: `fn new(silence_ms: u32, sample_rate: u32) -> Self`; `fn push(&mut self, frame: &[f32]) -> Option<Vec<f32>>` (devuelve un segmento cerrado cuando detecta silencio suficiente tras habla); `fn flush(&mut self) -> Option<Vec<f32>>` (cierra al parar el toggle).
 - Umbral de energía (RMS) configurable; por defecto 0.01.
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 ```rust
 #[cfg(test)]
@@ -905,12 +905,12 @@ mod tests {
 }
 ```
 
-- [ ] **Step 2: Correr el test para verificar que falla**
+- [x] **Step 2: Correr el test para verificar que falla**
 
 Run: `cargo test -p voice-type vad`
 Expected: FALLA.
 
-- [ ] **Step 3: Implementación mínima**
+- [x] **Step 3: Implementación mínima**
 
 ```rust
 pub struct Segmenter {
@@ -962,12 +962,12 @@ impl Segmenter {
 }
 ```
 
-- [ ] **Step 4: Correr los tests**
+- [x] **Step 4: Correr los tests**
 
 Run: `cargo test -p voice-type vad`
 Expected: PASA.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src-tauri/src/vad.rs src-tauri/src/lib.rs

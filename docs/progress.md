@@ -30,7 +30,7 @@ ALSA**. El objetivo del producto sigue siendo Windows 11. Consecuencia práctica
 | 5 | `config` | Hecho | 6 tests unitarios + smoke test del sidecar |
 | 6 | Sidecar STT (whisper-rs) | Pendiente | Requiere CUDA |
 | 7 | `audio` | Pendiente | Requiere micrófono |
-| 8 | `vad` | Pendiente | — |
+| 8 | `vad` | Hecho | 8 tests unitarios |
 | 9 | `supervisor` | Pendiente | — |
 | 10 | `text_injector` | Pendiente | Requiere Windows |
 | 11 | `pipeline` | Pendiente | — |
@@ -182,3 +182,25 @@ Smoke test del loop de IPC, mandándole cuatro líneas por stdin
 ```
 
 La línea basura se ignora sin tirar el proceso y `Shutdown` corta limpio.
+
+### Task 8 — `vad`
+
+**Qué se hizo.** `Segmenter`: acumula bloques de audio y cierra un segmento
+cuando detecta silencio suficiente después de que hubo voz. Umbral por energía
+(RMS 0.01) y `flush()` para el corte final cuando se apaga el toggle.
+
+**Agregados sobre el plan.**
+
+- *El silencio previo a la voz se descarta.* No aporta a la transcripción y sólo
+  hace más lento el paso por el modelo. El silencio del final sí se conserva:
+  le da a Whisper el contexto de que la frase terminó.
+- *Corte máximo de 15 s.* Hablar sin pausas hacía crecer el buffer sin límite en
+  la versión del plan. Whisper trabaja con una ventana de 30 s, así que un
+  segmento más largo se transcribiría truncado.
+
+**Pruebas ejecutadas.**
+
+```
+cargo test -p voice-type --no-default-features vad  → 8 passed
+cargo clippy ... -D warnings                        → sin warnings
+```
