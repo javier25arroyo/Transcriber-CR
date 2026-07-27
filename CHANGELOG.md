@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `.mcp.json`: registro del servidor MCP `codebase-memory-mcp` para el
+  proyecto (herramienta opcional para agentes de código, no forma parte del
+  build de la app). Ver CONTRIBUTING.md § Codebase memory MCP.
 - Scaffold del proyecto: workspace de Cargo con el paquete `voice-type`
   (librería + binario Tauri v2) y frontend Svelte 5 + Vite + TypeScript.
 - Features de cargo `app` e `injector`, que aíslan las dependencias de Tauri y
