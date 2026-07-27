@@ -33,8 +33,8 @@ ALSA**. El objetivo del producto sigue siendo Windows 11. Consecuencia práctica
 | 8 | `vad` | Hecho | 8 tests unitarios |
 | 9 | `supervisor` | Hecho | 8 unitarios + 4 de integración con procesos reales |
 | 10 | `text_injector` | Lógica hecha | 4 tests unitarios + compila con `--features injector`; el pegado real queda pendiente |
-| 11 | `pipeline` | Pendiente | — |
-| 12 | Hotkeys + comandos | Pendiente | Requiere Windows |
+| 11 | `pipeline` | Parcial: lógica hecha | 9 tests unitarios; cableado con audio pendiente |
+| 12 | Hotkeys + comandos | Parcial: estado hecho | 4 tests unitarios; comandos Tauri pendientes |
 | 13 | `PillWidget` | Pendiente | Verificación visual |
 | 14 | `AddWordPopup` | Pendiente | Verificación visual |
 | 15 | Tray, autostart, modelo | Pendiente | Requiere Windows |
@@ -331,3 +331,56 @@ bloque.
 ejemplo `mic_probe` del Step 5. No compila en este entorno Linux (falta ALSA) y
 su verificación es manual de todas formas. En el callback hay que usar
 `Resampler16k`, no `resample_to_16k`.
+
+### Task 11 — `pipeline` (parcial)
+
+**Qué se hizo.** `Pipeline`: recibe cada segmento transcripto, le aplica las
+correcciones del vocabulario, lo une con lo que ya se dictó y escribe en la
+ventana enfocada.
+
+**Lo que define el diseño.**
+
+- *Se escribe sólo el pedazo nuevo, no la frase entera.* El texto se pega
+  mientras la persona habla; reinyectar todo el acumulado en cada segmento lo
+  duplicaría en pantalla. `on_result` calcula el delta contra el transcript.
+- *`last_raw_segment()` devuelve lo que Whisper escuchó, sin corregir.* Es lo
+  que le muestra el popup de vocabulario al usuario: tiene que poder tocar la
+  palabra *mal entendida*, y en el texto ya corregido esa palabra no está.
+- *Las anotaciones de "esto no es habla" se descartan.* Whisper marca música,
+  silencio y ruido con `[BLANK_AUDIO]`, `(música)`, `[ Risas ]`. Pegar eso en el
+  documento del usuario sería un desastre. El filtro sólo actúa cuando el
+  segmento entero es la anotación: una frase real con paréntesis se escribe
+  normal.
+- *`finish()` limpia el transcript.* El próximo dictado puede ir a otra ventana;
+  arrastrar el texto anterior capitalizaría mal y calcularía el delta contra
+  algo que ya no está en pantalla.
+
+**Pruebas ejecutadas.**
+
+```
+cargo test -p voice-type --no-default-features pipeline  → 9 passed
+```
+
+**Pendiente (Windows).** El cableado `AudioCapture` → `Segmenter` → `Sidecar` →
+`on_result`, que depende de la captura pendiente de la Task 7.
+
+### Task 12 — Hotkeys (parcial)
+
+**Qué se hizo.** `DictationState` con `toggled()` e `is_dictating()`.
+
+Apretar el atajo mientras se está transcribiendo **apaga**, no vuelve a
+arrancar: para quien está dictando el toggle seguía prendido.
+
+El test que más valor tiene es el que serializa las tres variantes y las compara
+con el tipo `Status` de `src/lib/state.ts`. Si alguien renombra una variante en
+Rust, la píldora se quedaría mostrando el estado viejo sin ningún error a la
+vista; ese test es el que avisa.
+
+**Pruebas ejecutadas.**
+
+```
+cargo test -p voice-type --no-default-features hotkeys  → 4 passed
+```
+
+**Pendiente (Windows).** `commands.rs` y el registro del atajo global, que
+necesitan Tauri.

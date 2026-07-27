@@ -1216,7 +1216,7 @@ git commit -m "feat: text_injector with clipboard save/restore and Ctrl+V paste"
   - `struct Pipeline` con `fn start(&mut self)` (arranca captura → segmenta → envía a sidecar) y `fn stop(&mut self)` (flush último segmento). Estado emitido a la UI: `Idle | Listening | Transcribing`.
   - `fn on_result(&mut self, id: u64, text: String)` — aplica `post_processor::apply` con reemplazos del `Vocab`, `join_segments`, e inyecta.
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 ```rust
 #[cfg(test)]
@@ -1236,12 +1236,12 @@ mod tests {
 }
 ```
 
-- [ ] **Step 2: Correr el test para verificar que falla**
+- [x] **Step 2: Correr el test para verificar que falla**
 
 Run: `cargo test -p voice-type pipeline`
 Expected: FALLA.
 
-- [ ] **Step 3: Implementación mínima**
+- [x] **Step 3: Implementación mínima**
 
 `Pipeline::for_test` inyecta un closure en vez del `SystemClipboard` real. `on_result` hace:
 
@@ -1254,7 +1254,12 @@ pub fn on_result(&mut self, _id: u64, raw: String) {
 
 El wiring real (`start`/`stop`) conecta: `AudioCapture` → canal → `Segmenter::push` → `Sidecar::send(Transcribe)`; un hilo drena `Sidecar::try_recv` → `on_result`. `stop` llama `Segmenter::flush` y procesa el último.
 
-- [ ] **Step 4: Correr los tests**
+> **Parcial.** `on_result`, `finish`, `transcript`, `last_raw_segment` y
+> `add_vocab_word` están implementados y testeados. El cableado con
+> `AudioCapture` y `Sidecar` queda para Windows, porque depende de la captura
+> pendiente de la Task 7.
+
+- [x] **Step 4: Correr los tests**
 
 Run: `cargo test -p voice-type pipeline`
 Expected: PASA.
@@ -1284,7 +1289,7 @@ git commit -m "feat: dictation pipeline wiring audio->vad->stt->postproc->inject
   - Comandos Tauri: `#[tauri::command] fn toggle_dictation(state) -> String` (devuelve nuevo estado), `fn add_vocab_word(heard, correct, state)`, `fn get_last_transcription(state) -> String`.
   - Registro del atajo `config.toggle_shortcut` que llama `toggle_dictation`.
 
-- [ ] **Step 1: Escribir el test que falla (mapeo estado toggle)**
+- [x] **Step 1: Escribir el test que falla (mapeo estado toggle)**
 
 ```rust
 #[cfg(test)]
@@ -1301,7 +1306,7 @@ mod tests {
 }
 ```
 
-- [ ] **Step 2: Correr el test para verificar que falla**
+- [x] **Step 2: Correr el test para verificar que falla**
 
 Run: `cargo test -p voice-type hotkeys`
 Expected: FALLA.
@@ -1321,7 +1326,12 @@ impl DictationState {
 
 `commands.rs`: comandos que mutan el `Pipeline` compartido (dentro de `tauri::State<Mutex<AppState>>`), emiten evento `state-changed` al frontend, y llaman `pipeline.start()/stop()`. Registrar `global-shortcut` en `main.rs` con `config.toggle_shortcut`.
 
-- [ ] **Step 4: Correr los tests**
+> **Parcial.** `DictationState` con `toggled()` e `is_dictating()` está hecho, y
+> hay un test que fija que sus nombres serializados coinciden con el tipo
+> `Status` del frontend. `commands.rs` y el registro del atajo necesitan Tauri
+> y quedan para Windows.
+
+- [x] **Step 4: Correr los tests**
 
 Run: `cargo test -p voice-type hotkeys`
 Expected: PASA.
