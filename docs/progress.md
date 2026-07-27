@@ -39,6 +39,24 @@ ALSA**. El objetivo del producto sigue siendo Windows 11. Consecuencia práctica
 | 14 | `AddWordPopup` | Pendiente | Verificación visual |
 | 15 | Tray, autostart, modelo | Pendiente | Requiere Windows |
 
+## Lo que hay que hacer en la máquina Windows
+
+Ordenado por lo que desbloquea más:
+
+1. **Task 1, step 3** — `npm run tauri dev` tiene que abrir la ventana. Es la
+   primera confirmación de que el scaffold está bien; todo lo de UI depende de
+   esto.
+2. **Task 6** — el motor de Whisper en `stt-sidecar`. Hoy responde `Error` a
+   `LoadModel` y `Transcribe`; el loop de IPC y el heartbeat ya están.
+3. **Task 7, captura** — `AudioCapture` con `cpal` y el ejemplo `mic_probe`.
+   En el callback va `Resampler16k`, no `resample_to_16k`.
+4. **Tasks 11 a 15** — pipeline, hotkeys, píldora, popup de vocabulario y el
+   servicio (bandeja, autostart, descarga del modelo).
+
+También queda verificar a mano el pegado real del `text_injector` (compila,
+pero compilar no es pegar bien en el Bloc de notas) y que el job de Windows del
+CI pase: la app con la feature `app` nunca se compiló, sólo la librería.
+
 ## Detalle
 
 ### Task 1 — Scaffold del proyecto
