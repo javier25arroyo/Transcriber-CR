@@ -781,7 +781,7 @@ git commit -m "feat: STT sidecar with whisper-rs CUDA and IPC loop"
   - `fn resample_to_16k(mono: &[f32], src_rate: u32) -> Vec<f32>`
   - `struct AudioCapture` con `fn start(device: Option<&str>, sink: Sender<Vec<f32>>) -> Result<Stream>` (entrega bloques mono 16k). La captura viva se verifica a mano.
 
-- [ ] **Step 1: Escribir el test que falla (lógica pura)**
+- [x] **Step 1: Escribir el test que falla (lógica pura)**
 
 ```rust
 #[cfg(test)]
@@ -804,7 +804,7 @@ mod tests {
 }
 ```
 
-- [ ] **Step 2: Correr el test para verificar que falla**
+- [x] **Step 2: Correr el test para verificar que falla**
 
 Run: `cargo test -p voice-type audio`
 Expected: FALLA.
@@ -837,7 +837,14 @@ pub fn resample_to_16k(mono: &[f32], src_rate: u32) -> Vec<f32> {
 
 `AudioCapture::start` con `cpal`: abrir el device de entrada por defecto (o por nombre), en el callback hacer `downmix_to_mono` + acumular hasta ~30 ms, `resample_to_16k`, y enviar por el `Sender`. (El stream vivo no se testea en unit; ver Step 5.)
 
-- [ ] **Step 4: Correr tests unit**
+> **Parcial.** La conversión pura (`downmix_to_mono`, `resample_to_16k` y el
+> `Resampler16k` continuo) está implementada y testeada. `AudioCapture` con
+> `cpal` queda pendiente: no compila en el entorno Linux donde se hizo el resto
+> (falta ALSA) y su verificación es manual de todos modos. En el callback hay
+> que usar `Resampler16k`, no `resample_to_16k`: crear un resampler por bloque
+> se come el arranque del filtro en cada frontera y entrecorta el audio.
+
+- [x] **Step 4: Correr tests unit**
 
 Run: `cargo test -p voice-type audio`
 Expected: PASA.

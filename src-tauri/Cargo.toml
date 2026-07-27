@@ -40,6 +40,11 @@ app = ["dep:tauri", "dep:tauri-build", "dep:arboard", "dep:enigo"]
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
+# Resample a 16 kHz. Fijado en la 0.16 a propósito: de la 1.0 en adelante la API
+# pasa a buffers de `audioadapter`, que para un downmix mono a tasa fija sólo
+# agrega dependencias y ceremonia. Es Rust puro, así que compila y se testea en
+# cualquier plataforma.
+rubato = "0.16"
 serde_json = "1"
 tauri = { version = "2", optional = true }
 # Portapapeles y teclado sintético: sólo los usa la app real (ver text_injector).

@@ -29,7 +29,7 @@ ALSA**. El objetivo del producto sigue siendo Windows 11. Consecuencia práctica
 | 4 | `ipc` | Hecho | 5 tests unitarios |
 | 5 | `config` | Hecho | 6 tests unitarios + smoke test del sidecar |
 | 6 | Sidecar STT (whisper-rs) | Pendiente | Requiere CUDA |
-| 7 | `audio` | Pendiente | Requiere micrófono |
+| 7 | `audio` | Parcial: conversión hecha | 10 tests unitarios; captura pendiente |
 | 8 | `vad` | Hecho | 8 tests unitarios |
 | 9 | `supervisor` | Hecho | 8 unitarios + 4 de integración con procesos reales |
 | 10 | `text_injector` | Lógica hecha | 4 tests unitarios; el pegado real queda pendiente |
@@ -272,3 +272,39 @@ sólo que la closure se haya llamado.
 (`paste_ctrl_v` + `SystemClipboard`) y el ejemplo `inject_probe` del Step 5:
 `arboard` y `enigo` sólo entran con la feature `app`, que no se puede compilar
 en este entorno Linux.
+
+### Task 7 — `audio` (parcial)
+
+**Qué se hizo.** `downmix_to_mono`, `resample_to_16k` y —esto no estaba en el
+plan— `Resampler16k`, el resample continuo para audio en vivo.
+
+**Lo que encontró el test.** El test del plan esperaba que remuestrear 320
+muestras de 32 kHz diera ~160 a 16 kHz. Dio 127. No es un bug del test: un
+resampler recién creado arranca con el filtro sinc vacío y se come unas
+`sinc_len/2` muestras de entrada. Como la función del plan crea un resampler
+nuevo en cada llamada, usarla por cada bloque del micrófono metería ese hueco en
+**cada frontera de bloque** — el audio saldría entrecortado, y con suerte se
+notaría recién al escuchar una transcripción con palabras cortadas.
+
+De ahí `Resampler16k`: mantiene un único resampler vivo entre bloques, así el
+arranque se paga una sola vez. Acepta bloques de cualquier tamaño (cpal no
+garantiza que midan siempre lo mismo) y guarda lo que no completa un chunk.
+`resample_to_16k` queda para conversiones de una sola vez, con la advertencia
+escrita en su documentación.
+
+**Pruebas ejecutadas.**
+
+```
+cargo test -p voice-type --no-default-features audio  → 10 passed
+cargo test -p voice-type --no-default-features        → 56 unitarios + 4 de integración
+cargo clippy ... -D warnings                          → sin warnings
+```
+
+El test que importa es `streaming_resampler_does_not_lose_audio_between_blocks`:
+diez bloques seguidos pierden sólo el arranque, una vez, y no una vez por
+bloque.
+
+**Pendiente (Windows, requiere micrófono).** `AudioCapture` con `cpal` y el
+ejemplo `mic_probe` del Step 5. No compila en este entorno Linux (falta ALSA) y
+su verificación es manual de todas formas. En el callback hay que usar
+`Resampler16k`, no `resample_to_16k`.
