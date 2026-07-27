@@ -35,8 +35,8 @@ ALSA**. El objetivo del producto sigue siendo Windows 11. Consecuencia práctica
 | 10 | `text_injector` | Lógica hecha | 4 tests unitarios + compila con `--features injector`; el pegado real queda pendiente |
 | 11 | `pipeline` | Parcial: lógica hecha | 9 tests unitarios; cableado con audio pendiente |
 | 12 | Hotkeys + comandos | Parcial: estado hecho | 4 tests unitarios; comandos Tauri pendientes |
-| 13 | `PillWidget` | Pendiente | Verificación visual |
-| 14 | `AddWordPopup` | Pendiente | Verificación visual |
+| 13 | `PillWidget` | Hecho | 5 tests + capturas en claro y oscuro |
+| 14 | `AddWordPopup` | Frontend hecho | 6 tests + capturas; comandos Tauri pendientes |
 | 15 | Tray, autostart, modelo | Pendiente | Requiere Windows |
 
 ## Lo que hay que hacer en la máquina Windows
@@ -384,3 +384,50 @@ cargo test -p voice-type --no-default-features hotkeys  → 4 passed
 
 **Pendiente (Windows).** `commands.rs` y el registro del atajo global, que
 necesitan Tauri.
+
+### Tasks 13 y 14 — Píldora y popup de vocabulario
+
+**Qué se hizo.** `PillWidget.svelte` (translúcida, redondeada, arrastrable, con
+las ondas animadas y el botón "+"), `AddWordPopup.svelte` (chips con las
+palabras de la última frase, campo para la forma correcta) y `tokenize.ts`.
+
+**Cómo se verificó el diseño sin Windows.** `npx vite preview` + capturas con
+Chromium sobre un fondo a cuadros, en claro y en oscuro. Las llamadas a Tauri
+fallan ahí —no hay backend— y los componentes lo manejan, así que se ve el
+layout real. Lo que esa pasada no puede decir es si la translucidez y el
+siempre-encima se comportan en Windows.
+
+**Un bug que apareció justo por mirarlo.** La ventana es transparente y
+siempre-encima. Con el alto fijo de 260 px, todo el espacio vacío debajo de la
+píldora seguía siendo ventana: se comía los clicks de lo que hubiera abajo, o
+sea un rectángulo de pantalla inutilizable flotando sobre el escritorio. Ahora
+la ventana arranca con el alto de la píldora (64 px) y crece sólo mientras el
+popup está abierto, con `core:window:allow-set-size` en las capabilities.
+
+**Decisiones del frontend.**
+
+- *Una sola ventana para la píldora y el popup.* Arrastrás la píldora y el
+  popup la sigue; no quedan dos cosas separadas flotando.
+- *`statusLabel` e `isAnimated` viven en `state.ts`, no en el componente.* Así
+  se testean sin montar Svelte.
+- *Las ondas siguen animadas en `Transcribing`.* El micrófono sigue grabando
+  mientras el motor procesa el segmento anterior; congelarlas haría creer que
+  dejó de escuchar.
+- *`stripPunctuation` antes de guardar la palabra mal escuchada.* Si se
+  guardara `yeison,` con la coma, el reemplazo no volvería a aplicarse nunca:
+  el post-procesador busca por palabra completa.
+- *El click en "+" corta la propagación*, si no también togglearía el dictado.
+- *`prefers-reduced-motion`* apaga la animación de las ondas.
+
+**Pruebas ejecutadas.**
+
+```
+npx vitest run     → 11 passed (5 de state, 6 de tokenize)
+npx svelte-check   → 0 errores, 0 warnings
+npm run build      → OK
+Capturas en Chromium (claro y oscuro): píldora en reposo, píldora activa y popup
+```
+
+**Pendiente.** Los comandos `get_last_transcription` y `add_vocab_word` del
+step 3 de la Task 14: la lógica ya está en `Pipeline`, falta exponerla desde
+`commands.rs` en Windows. Y la pasada visual con `npm run tauri dev`.

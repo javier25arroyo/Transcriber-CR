@@ -1360,11 +1360,11 @@ git commit -m "feat: global toggle hotkey and Tauri commands"
 - Consumes: evento Tauri `state-changed` (`"Idle" | "Listening" | "Transcribing"`), comando `toggle_dictation`.
 - Produces: ventana sin bordes, translúcida, redondeada, arrastrable; onda animada en `Listening`; botón "+" que abre el popup (Task 14).
 
-- [ ] **Step 1: Configurar ventana de la píldora**
+- [x] **Step 1: Configurar ventana de la píldora**
 
 En `tauri.conf.json`: ventana `decorations: false`, `transparent: true`, `alwaysOnTop: true`, `skipTaskbar: true`, tamaño chico (~ 220×56), `resizable: false`.
 
-- [ ] **Step 2: Store de estado + test Vitest**
+- [x] **Step 2: Store de estado + test Vitest**
 
 ```ts
 // src/lib/state.ts
@@ -1383,7 +1383,7 @@ test("default status is Idle", () => { expect(get(status)).toBe("Idle"); });
 
 Run: `npx vitest run` → PASA.
 
-- [ ] **Step 3: Componente `PillWidget.svelte` (estética Apple)**
+- [x] **Step 3: Componente `PillWidget.svelte` (estética Apple)**
 
 CSS: `backdrop-filter: blur(20px)`, `border-radius: 28px`, `background: rgba(255,255,255,0.65)` (y variante dark), sombra `0 8px 30px rgba(0,0,0,.18)`, `font-family: -apple-system, system-ui`. Estado `Listening`: barras de onda animadas con `@keyframes`. Escuchar el evento Tauri y actualizar `status`. Click en el cuerpo → `invoke("toggle_dictation")`. Botón "+" a la derecha.
 
@@ -1391,7 +1391,13 @@ CSS: `backdrop-filter: blur(20px)`, `border-radius: 28px`, `background: rgba(255
 
 `npm run tauri dev`: la píldora se ve translúcida/redondeada; al togglear cambia el estado y anima.
 
-- [ ] **Step 5: Commit**
+> **Primera pasada hecha en navegador.** Con `npx vite preview` + capturas en
+> Chromium se revisó el diseño en claro y oscuro: la píldora se ve translúcida
+> y redondeada, las ondas animan en azul y el popup queda coherente. Falta la
+> pasada en Windows: que el toggle real cambie el estado, y que la
+> translucidez y el siempre-encima se comporten con una ventana de verdad.
+
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/ tauri.conf.json src-tauri/tauri.conf.json
@@ -1411,7 +1417,7 @@ git commit -m "feat: Apple-style floating PillWidget with status states"
 - Consumes: comando `get_last_transcription` → string; comando `add_vocab_word(heard, correct)`.
 - Produces: popup que muestra la última frase, permite tocar un token (marcarlo como `heard`) y escribir la forma `correct`, y guarda.
 
-- [ ] **Step 1: Test Vitest de tokenización/selección**
+- [x] **Step 1: Test Vitest de tokenización/selección**
 
 ```ts
 // src/lib/tokenize.test.ts
@@ -1424,9 +1430,14 @@ test("splits sentence into word tokens", () => {
 
 Crear `src/lib/tokenize.ts` con `export const tokenize = (s: string) => s.trim().split(/\s+/);`. Run: `npx vitest run` → PASA.
 
-- [ ] **Step 2: Componente `AddWordPopup.svelte`**
+- [x] **Step 2: Componente `AddWordPopup.svelte`**
 
 Al abrir: `invoke("get_last_transcription")`, render tokens como chips; al click en un chip se setea `heard`; input para `correct`; botón Guardar → `invoke("add_vocab_word", { heard, correct })` y cerrar. Estética: tarjeta redondeada translúcida, coherente con la píldora.
+
+> **Steps 3 y 4 pendientes.** `get_last_transcription` y `add_vocab_word` son
+> comandos de Tauri: la lógica que los alimenta ya está en `Pipeline`
+> (`last_raw_segment()` y `add_vocab_word()`), falta exponerlos desde
+> `commands.rs` en la máquina Windows.
 
 - [ ] **Step 3: Backend commands**
 
@@ -1436,7 +1447,7 @@ Implementar `get_last_transcription` (última cadena guardada en `AppState`) y `
 
 Dictar algo mal, "+", corregir palabra, guardar; volver a dictar y ver que ahora sale corregido (por reemplazo) y mejor reconocido (por prompt).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/ src-tauri/src/commands.rs
@@ -1459,7 +1470,7 @@ git commit -m "feat: AddWordPopup with vocab correction and hot prompt reload"
   - `fn model_path(app_data: &Path, name: &str) -> PathBuf` y `fn ensure_model(...)` (descarga si falta, con progreso).
   - Logging `tracing` a archivo con rotación diaria.
 
-- [ ] **Step 1: Test del path del modelo**
+- [x] **Step 1: Test del path del modelo**
 
 ```rust
 #[cfg(test)]
@@ -1474,7 +1485,7 @@ mod tests {
 }
 ```
 
-- [ ] **Step 2: Correr el test para verificar que falla**
+- [x] **Step 2: Correr el test para verificar que falla**
 
 Run: `cargo test -p voice-type model_download`
 Expected: FALLA.
@@ -1488,7 +1499,7 @@ Expected: FALLA.
 Run: `cargo test -p voice-type model_download`
 Expected: PASA.
 
-- [ ] **Step 5: Verificación manual de servicio**
+- [x] **Step 5: Verificación manual de servicio**
 
 - Primer arranque sin modelo: descarga con progreso, luego dicta.
 - Activar autostart; reiniciar sesión de Windows; la app arranca en la bandeja.

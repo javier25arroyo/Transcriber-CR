@@ -1,7 +1,12 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Permisos de la ventana de la píldora. Arranca con lo mínimo: `core:default` alcanza para que el frontend llame comandos propios con invoke y escuche eventos. Los permisos de los plugins (atajo global, autostart) se agregan en la Task 15, cuando entren esos plugins.",
-  "windows": ["pill"],
-  "permissions": ["core:default"]
+  "description": "Permisos de la ventana de la píldora. `core:default` alcanza para que el frontend llame comandos propios con invoke y escuche eventos; `core:window:allow-set-size` es para que la ventana crezca al abrir el popup y vuelva al alto de la píldora al cerrarlo, y así no se coma los clicks de lo que haya abajo. Los permisos de los plugins (atajo global, autostart) se agregan en la Task 15.",
+  "windows": [
+    "pill"
+  ],
+  "permissions": [
+    "core:default",
+    "core:window:allow-set-size"
+  ]
 }

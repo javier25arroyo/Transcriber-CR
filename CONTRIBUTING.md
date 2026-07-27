@@ -94,6 +94,13 @@ merging a PR that touches them:
   dictating, confirm the supervisor restarts it and dictation keeps working.
 - Autostart at Windows login.
 
+For the pill and the popup there's a cheaper first pass that doesn't need
+Windows: `npm run build && npx vite preview` renders them in any browser. The
+Tauri calls fail there (there's no backend), which the components handle, so
+you get the layout, the colors and the light/dark variants without leaving the
+dev machine. What that pass can't tell you is whether the translucency and the
+always-on-top window behave on real Windows — that still needs the target box.
+
 If your change touches one of these areas, say in the PR description how you
 verified it manually — the CI template has a field for this.
 
