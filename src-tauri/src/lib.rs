@@ -6,6 +6,7 @@
 //! aíslan el efecto detrás de un trait o de una función chica, y el resto —el
 //! algoritmo— se testea sin hardware. Ver CONTRIBUTING.md § Running tests.
 
+pub mod config;
 pub mod ipc;
 pub mod post_processor;
 pub mod vocab_store;

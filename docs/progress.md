@@ -27,7 +27,7 @@ ALSA**. El objetivo del producto sigue siendo Windows 11. Consecuencia práctica
 | 2 | `vocab_store` | Hecho | 6 tests unitarios |
 | 3 | `post_processor` | Hecho | 9 tests unitarios |
 | 4 | `ipc` | Hecho | 5 tests unitarios |
-| 5 | `config` | Pendiente | — |
+| 5 | `config` | Hecho | 6 tests unitarios + smoke test del sidecar |
 | 6 | Sidecar STT (whisper-rs) | Pendiente | Requiere CUDA |
 | 7 | `audio` | Pendiente | Requiere micrófono |
 | 8 | `vad` | Pendiente | — |
@@ -141,3 +141,44 @@ como cuello de botella, pasar a framing binario merece su propio ADR.
 cargo test -p voice-type --no-default-features ipc  → 5 passed
 cargo clippy ... -D warnings                        → sin warnings
 ```
+
+### Task 5 — `config` y crate `stt-sidecar`
+
+**Qué se hizo.** `AppConfig` (atajo, modelo, micrófono, posición de la píldora)
+con load/save en JSON, y el crate `stt-sidecar` cableado como miembro del
+workspace.
+
+**Endurecimiento sobre el plan.** El struct lleva `#[serde(default)]`: un
+archivo de config escrito por una versión anterior no tiene los campos que se
+agreguen después, y sin eso serde falla al deserializar y `load` termina
+descartando *todos* los ajustes del usuario por un campo que falta. Hay un test
+que carga `{"mic_device":"Mic viejo"}` y verifica que conserva el micrófono y
+completa el resto con los valores por defecto.
+
+**Dirección de la dependencia.** `stt-sidecar` depende de `voice-type` con
+`default-features = false`, que apaga la feature `app`. Verificado con
+`cargo tree`: en el árbol del sidecar no aparece Tauri. Es la mitad concreta de
+lo que exige el ADR 0001.
+
+El `main.rs` del sidecar trae el loop de IPC y el heartbeat completos; el motor
+de Whisper se enchufa en la Task 6, y hasta entonces `LoadModel` y `Transcribe`
+responden `Error`, que es justo lo que el supervisor sabe manejar.
+
+**Pruebas ejecutadas.**
+
+```
+cargo test -p voice-type --no-default-features config  → 6 passed
+cargo test -p voice-type --no-default-features         → 26 passed (total acumulado)
+cargo clippy -p stt-sidecar --all-targets -- -D warnings → sin warnings
+cargo tree -p stt-sidecar                              → sin Tauri en el árbol
+```
+
+Smoke test del loop de IPC, mandándole cuatro líneas por stdin
+(LoadModel, una línea basura, Transcribe, Shutdown):
+
+```
+{"type":"Error","message":"motor STT todavía no implementado (Task 6 del plan)"}
+{"type":"Error","message":"motor STT todavía no implementado (Task 6 del plan)"}
+```
+
+La línea basura se ignora sin tirar el proceso y `Shutdown` corta limpio.

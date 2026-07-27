@@ -500,7 +500,7 @@ git commit -m "feat: ipc message protocol with JSON line encoding"
   - `fn load(path: &Path) -> AppConfig`
   - `fn save(&self, path: &Path) -> io::Result<()>`
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 ```rust
 #[cfg(test)]
@@ -525,12 +525,12 @@ mod tests {
 }
 ```
 
-- [ ] **Step 2: Correr el test para verificar que falla**
+- [x] **Step 2: Correr el test para verificar que falla**
 
 Run: `cargo test -p voice-type config`
 Expected: FALLA.
 
-- [ ] **Step 3: Implementación mínima**
+- [x] **Step 3: Implementación mínima**
 
 ```rust
 use serde::{Deserialize, Serialize};
@@ -569,7 +569,7 @@ impl AppConfig {
 }
 ```
 
-- [ ] **Step 4: Configurar el sidecar para reusar `ipc`**
+- [x] **Step 4: Configurar el sidecar para reusar `ipc`**
 
 En `stt-sidecar/Cargo.toml` agregar dependencia al lib del proyecto principal (nombre del paquete `voice-type`):
 
@@ -587,7 +587,7 @@ name = "voice_type"
 path = "src/lib.rs"
 ```
 
-- [ ] **Step 5: Correr tests y commit**
+- [x] **Step 5: Correr tests y commit**
 
 Run: `cargo test -p voice-type config`
 Expected: PASA.

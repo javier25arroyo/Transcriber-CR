@@ -1,9 +1,6 @@
 [workspace]
-members = ["src-tauri"]
+members = ["src-tauri", "stt-sidecar"]
 resolver = "2"
-
-# `stt-sidecar` se agrega como miembro en la Task 6 del plan de implementación,
-# cuando exista el crate. Declararlo antes rompe cualquier comando de cargo.
 
 [workspace.package]
 version = "0.1.0"
