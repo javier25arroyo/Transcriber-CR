@@ -40,6 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   del Ctrl+V.
 - Módulo `audio`: downmix a mono y resample a 16 kHz, con un resampler continuo
   que no pierde audio entre bloques.
+- Captura real de micrófono (`AudioCapture`, feature `capture`) con `cpal`,
+  más el ejemplo `mic_probe` para verificarla a mano.
 - Bitácora de progreso en `docs/progress.md`.
 
 ### Changed
