@@ -32,3 +32,4 @@ descriptions, not here.
 | [0003](0003-clipboard-paste-injection.md) | Clipboard + Ctrl+V text injection | Accepted |
 | [0004](0004-fixed-spanish-with-custom-vocabulary.md) | Fixed Spanish recognition with custom vocabulary | Accepted |
 | [0005](0005-tauri-v2-and-svelte-stack.md) | Tauri v2 + Svelte + whisper-rs stack | Accepted |
+| [0006](0006-branching-and-release-flow.md) | Branching and release flow | Accepted |

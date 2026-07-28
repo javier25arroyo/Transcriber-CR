@@ -65,7 +65,7 @@ toolchain. See [ADR 0001](docs/adr/0001-isolated-stt-sidecar.md).
 - Commit messages: `feat:`, `fix:`, `test:`, `chore:`, `docs:` prefixes.
 - Test-driven development for pure, deterministic logic: `vocab_store`,
   `post_processor`, `ipc`, `config`, `vad`. Write the failing test first.
-- One branch per unit of work, PR into `main` (see [Workflow](#workflow)
+- One branch per unit of work, PR into `develop` (see [Workflow](#workflow)
   below).
 - If you touch `README.md`, update **both** the English and Spanish sections
   in the same commit — the PR template has a checkbox for this.
@@ -116,11 +116,16 @@ verified it manually — the CI template has a field for this.
 ## Workflow
 
 - One branch per task: `task/NN-short-description` for implementation-plan
-  tasks, `fix/...` or `feat/...` for everything else.
-- Open a PR into `main`. CI must pass (see below) before merging.
-- Squash merge, so each unit of work is one commit on `main`.
+  tasks, `fix/...` or `feat/...` for everything else — cut from `develop`.
+- Open a PR into `develop`. CI must pass (see below) before merging.
+- Squash merge, so each unit of work is one commit on `develop`.
 - No mandatory reviewer for now — this is a one-person project. That
   requirement gets added the day a second contributor shows up.
+- `main` only moves via a `release/*` or `hotfix/*` branch, merged with a
+  merge commit and tagged. See [ADR 0006](docs/adr/0006-branching-and-release-flow.md)
+  and [docs/release-process.md](docs/release-process.md) for the full flow,
+  including the manual verification checklist that has to pass before a
+  release reaches `main`.
 
 ## Codebase memory MCP (optional, for coding agents)
 

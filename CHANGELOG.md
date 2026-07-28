@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Flujo de ramas `develop` → `release/*` → `main` con tag, documentado en
+  [ADR 0006](docs/adr/0006-branching-and-release-flow.md) y en
+  [docs/release-process.md](docs/release-process.md). `develop` pasa a ser la
+  rama por defecto y el destino de los PR de trabajo; `main` solo se mueve
+  fusionando una rama `release/*` o `hotfix/*`, y cada fusión a `main` queda
+  taggeada.
+- `scripts/version.mjs`: sincroniza y verifica la versión entre `Cargo.toml`,
+  `package.json` y `src-tauri/tauri.conf.json` (`pnpm version:check` /
+  `pnpm version:set <versión>`).
+- `scripts/changelog-section.mjs`: extrae de `CHANGELOG.md` la sección de una
+  versión (o `[Unreleased]` si todavía no está cerrada), usado para el cuerpo
+  del GitHub Release.
+- `.github/workflows/release.yml`: al empujar un tag `vX.Y.Z` (o
+  `vX.Y.Z-rc.N`), publica el GitHub Release correspondiente con las notas
+  tomadas del CHANGELOG.
+- CI: job `versioning` que falla si las tres fuentes de versión no coinciden
+  entre sí, o si una rama `release/*`/`hotfix/*` no coincide con la versión de
+  sus manifiestos o no tiene ya una sección cerrada en el CHANGELOG — el "paso
+  antes del tag" hecho verificable.
 - `.mcp.json`: registro del servidor MCP `codebase-memory-mcp` para el
   proyecto (herramienta opcional para agentes de código, no forma parte del
   build de la app). Ver CONTRIBUTING.md § Codebase memory MCP.
@@ -46,6 +65,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- CONTRIBUTING.md, la plantilla de PR y README.md: el flujo de trabajo pasa a
+  abrir PRs contra `develop` en vez de `main` (ver ADR 0006).
+- CI: los triggers de `push`/`pull_request` ahora cubren `develop`,
+  `release/**` y `hotfix/**` además de `main`.
 - CI: se retiraron las guardas temporales de repo vacío, se construye el
   frontend antes de compilar el crate en Windows y se agregó un job en Linux
   que corre la lógica pura con `--no-default-features` y revisa el módulo del

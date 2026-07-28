@@ -2,13 +2,46 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop, "release/**", "hotfix/**"]
   pull_request:
-    branches: [main]
+    branches: [main, develop, "release/**"]
 
 jobs:
+  versioning:
+    name: Versión y CHANGELOG
+    runs-on: ubuntu-latest
+    env:
+      TARGET_BRANCH: ${{ github.head_ref || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Las tres fuentes de versión coinciden
+        run: node scripts/version.mjs --check
+
+      # Solo en release/* y hotfix/*: la versión de los manifiestos tiene que
+      # coincidir con el número de la rama, y el CHANGELOG tiene que tener ya
+      # una sección cerrada para esa versión (no alcanza con [Unreleased]).
+      # Este es el "paso antes del tag" hecho verificable, no solo un runbook.
+      # Ver docs/release-process.md.
+      - name: Rama release/hotfix coincide con la versión y el CHANGELOG está cerrado
+        if: startsWith(env.TARGET_BRANCH, 'release/v') || startsWith(env.TARGET_BRANCH, 'hotfix/v')
+        run: |
+          VERSION="${TARGET_BRANCH#*/v}"
+          node scripts/version.mjs --check --expect "$VERSION"
+          ESCAPED_VERSION="${VERSION//./\\.}"
+          if ! grep -qE "^## \[${ESCAPED_VERSION}\] - [0-9]{4}-[0-9]{2}-[0-9]{2}$" CHANGELOG.md; then
+            echo "CHANGELOG.md no tiene una sección cerrada '## [$VERSION] - YYYY-MM-DD'" >&2
+            exit 1
+          fi
+
   rust:
     name: Rust (fmt, clippy, tests)
+    needs: versioning
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -57,6 +90,7 @@ jobs:
 
   core-logic:
     name: Lógica pura (sin toolkit gráfico)
+    needs: versioning
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -96,6 +130,7 @@ jobs:
 
   frontend:
     name: Frontend (vitest, svelte-check)
+    needs: versioning
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

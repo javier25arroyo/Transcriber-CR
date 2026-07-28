@@ -5,7 +5,9 @@ in Spanish, with a global toggle hotkey that types the transcription straight
 into whatever application has focus.
 
 **Status:** v1 in development. See the [implementation plan](docs/superpowers/plans/2026-07-25-voice-type-dictation.md)
-and the [Changelog](CHANGELOG.md) for progress.
+and the [Changelog](CHANGELOG.md) for progress. Development happens on
+`develop`; see the [release process](docs/release-process.md) for how a
+version gets from there to a tagged release on `main`.
 
 [Español ↓](#voice-type-1)
 
@@ -105,7 +107,9 @@ reconocimiento en español, y un atajo global tipo toggle que escribe la
 transcripción directo en la aplicación que tenga el foco.
 
 **Estado:** v1 en desarrollo. Ver el [plan de implementación](docs/superpowers/plans/2026-07-25-voice-type-dictation.md)
-y el [Changelog](CHANGELOG.md) para ver el progreso.
+y el [Changelog](CHANGELOG.md) para ver el progreso. El desarrollo pasa por
+`develop`; ver el [proceso de release](docs/release-process.md) para cómo una
+versión llega de ahí a un tag publicado en `main`.
 
 ## Qué es
 

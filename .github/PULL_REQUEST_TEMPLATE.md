@@ -12,6 +12,7 @@
 
 ## Checklist
 
+- [ ] This PR targets `develop` (or `main`, only if it's a `release/*` or `hotfix/*` branch — see [docs/release-process.md](../docs/release-process.md))
 - [ ] `cargo fmt --all -- --check` and `cargo clippy -p voice-type --all-targets -- -D warnings` pass locally
 - [ ] `cargo test -p voice-type` and `npx vitest run` pass locally
 - [ ] `CHANGELOG.md` updated under `[Unreleased]`
