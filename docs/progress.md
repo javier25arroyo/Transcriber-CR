@@ -29,7 +29,7 @@ ALSA**. El objetivo del producto sigue siendo Windows 11. Consecuencia práctica
 | 4 | `ipc` | Hecho | 5 tests unitarios |
 | 5 | `config` | Hecho | 6 tests unitarios + smoke test del sidecar |
 | 6 | Sidecar STT (whisper-rs) | Preparada: protocolo hecho | 6 tests contra un motor de mentira; falta el motor real |
-| 7 | `audio` | Parcial: conversión hecha | 10 tests unitarios; captura pendiente |
+| 7 | `audio` | **Hecho, verificado en Windows** | 12 tests unitarios; `mic_probe` corrió de punta a punta (falta que alguien hable frente al micro para el último check) |
 | 8 | `vad` | Hecho | 8 tests unitarios |
 | 9 | `supervisor` | Hecho | 8 unitarios + 4 de integración con procesos reales |
 | 10 | `text_injector` | Lógica hecha | 4 tests unitarios + compila con `--features injector`; el pegado real queda pendiente |
@@ -316,7 +316,7 @@ Linux. Eso saca al módulo que toca el portapapeles del usuario de la lista de
 verdad contra otra aplicación, y el ejemplo `inject_probe` del Step 5. Compilar
 no es lo mismo que pegar bien en el Bloc de notas.
 
-### Task 7 — `audio` (parcial)
+### Task 7 — `audio`
 
 **Qué se hizo.** `downmix_to_mono`, `resample_to_16k` y —esto no estaba en el
 plan— `Resampler16k`, el resample continuo para audio en vivo.
@@ -347,10 +347,67 @@ El test que importa es `streaming_resampler_does_not_lose_audio_between_blocks`:
 diez bloques seguidos pierden sólo el arranque, una vez, y no una vez por
 bloque.
 
-**Pendiente (Windows, requiere micrófono).** `AudioCapture` con `cpal` y el
-ejemplo `mic_probe` del Step 5. No compila en este entorno Linux (falta ALSA) y
-su verificación es manual de todas formas. En el callback hay que usar
-`Resampler16k`, no `resample_to_16k`.
+**Terminado en Windows 11 (2026-07-27), rama `task/07-audio-capture`.**
+
+`AudioCapture` (feature `capture`, `cpal 0.17`) y el ejemplo `mic_probe`. Antes
+de escribirlos se extrajo `CaptureConverter` — encadena `downmix_to_mono` y
+`Resampler16k`, exactamente lo que el callback de captura necesita hacer con
+cada bloque — como tipo puro y testeado, siguiendo el mismo patrón que
+`text_injector`: el algoritmo se prueba sin hardware, el borde real
+(`AudioCapture`, dentro de `mod system` detrás de `#[cfg(feature = "capture")]`)
+se verifica a mano.
+
+**Un test que vale la pena mirar.** `capture_converter_downmixes_before_resampling`
+fija el orden de las operaciones: mezclar primero, remuestrear después. Si se
+invirtiera, un bloque estéreo entraría al resampler con el doble de muestras de
+las que le corresponden y saldría con valores que no son el promedio de ningún
+canal real — un bug silencioso, sin panic, difícil de notar escuchando.
+
+**`cpal 0.18.1` no compila.** La versión más nueva en crates.io al momento de
+esta tanda trae, en su propio árbol de dependencias, dos versiones
+incompatibles de `windows-core` (0.61 vía el crate `windows`, 0.62 directo):
+el macro `#[windows::core::implement(...)]` del backend WASAPI genera código
+contra una y el resto del crate espera la otra. Es un bug de esa versión, no
+de este proyecto — bajar a `cpal = "0.17"` lo evita por completo.
+
+**Por qué `capture` no se prueba en el job de Linux del CI.** A diferencia de
+`injector` (arboard + enigo, puro Rust + Win32/X11 sin dependencias de sistema
+para *compilar*), el backend ALSA de `cpal` en Linux necesita
+`libasound2-dev` al build, no garantizado en el runner. Se sigue el mismo
+criterio que con `whisper-rs`/CUDA (Task 6): sin cobertura de CI en esa
+plataforma, cobertura real sólo en el job de Windows (dentro de `app`) y
+verificación manual con `mic_probe`.
+
+**Pruebas ejecutadas (Windows 11, RTX 4060 Laptop).**
+
+```
+cargo fmt --all -- --check                                                        → OK
+cargo clippy -p voice-type --no-default-features --all-targets -- -D warnings     → sin warnings
+cargo clippy -p voice-type --no-default-features --features injector ... 
+  --all-targets -- -D warnings                                                    → sin warnings
+cargo clippy -p voice-type --all-targets -- -D warnings  (default = app)          → sin warnings
+cargo clippy -p stt-sidecar --all-targets -- -D warnings                          → sin warnings
+cargo test -p voice-type --no-default-features            → 77 unitarios + 4 integración
+cargo test -p voice-type                                   → 77 unitarios + 4 integración
+cargo test -p stt-sidecar                                  → 6 passed
+```
+
+**Verificación manual con `mic_probe`.**
+
+```
+cargo run -p voice-type --example mic_probe --features capture
+> Capturando 3 segundos del micrófono por defecto. Hablá ahora...
+> Muestras capturadas (16 kHz mono): 47498
+> RMS: 0.0009
+```
+
+47498 muestras en ~3 s contra las 48000 esperadas a 16 kHz — el pipeline entero
+(dispositivo → stream → `CaptureConverter` → canal → acumulado) funciona sin
+errores. El RMS bajo es consistente con silencio de ambiente: nadie habló
+durante esta corrida porque quien la ejecutó fue un agente sin forma de
+producir sonido. **Falta que una persona corra el mismo comando hablando frente
+al micrófono** y confirme que el RMS sube — es la única parte de este módulo
+que de verdad necesita un humano.
 
 ### Task 11 — `pipeline` (parcial)
 

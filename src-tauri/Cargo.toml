@@ -28,6 +28,16 @@ required-features = ["app"]
 name = "echo-sidecar"
 path = "tests/bin/echo_sidecar.rs"
 
+# Verificación manual de la captura de micrófono (Task 7, Step 5 del plan).
+# `required-features` hace que `cargo` lo salte solo, sin error, cuando la
+# feature `capture` está apagada — así el job de Linux del CI (que corre
+# `--all-targets` con `--no-default-features` y con `--features injector`,
+# ninguna de las dos con `capture`) no intenta compilarlo.
+[[example]]
+name = "mic_probe"
+path = "examples/mic_probe.rs"
+required-features = ["capture"]
+
 [features]
 default = ["app"]
 # `app` agrega todo lo que necesita la aplicación Tauri real (WebView2 en
@@ -40,11 +50,17 @@ default = ["app"]
 # permite `cargo test -p voice-type --no-default-features` en cualquier máquina
 # sin instalar las dependencias de sistema de Tauri — ver CONTRIBUTING.md
 # ("Running tests"). El build completo de la app sigue siendo Windows 11.
-app = ["dep:tauri", "dep:tauri-build", "injector"]
+app = ["dep:tauri", "dep:tauri-build", "injector", "capture"]
 # El portapapeles y el teclado sintético son parte de la app, pero no dependen
 # de Tauri: en su propia feature se pueden compilar (y así, revisar) sin
 # WebView2 ni WebKitGTK.
 injector = ["dep:arboard", "dep:enigo"]
+# La captura de micrófono tampoco depende de Tauri. A diferencia de `injector`,
+# no se prueba en el job de Linux del CI: el backend de `cpal` ahí necesita los
+# headers de ALSA (`libasound2-dev`), que no están garantizados en el runner.
+# Se compila y prueba de verdad sólo en el job de Windows (dentro de `app`) y
+# se verifica a mano con el ejemplo `mic_probe`.
+capture = ["dep:cpal"]
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
@@ -58,6 +74,7 @@ tauri = { version = "2", optional = true , features = [] }
 # Portapapeles y teclado sintético: sólo los usa la app real (ver text_injector).
 arboard = { version = "3", optional = true }
 enigo = { version = "0.6", optional = true }
+cpal = { version = "0.17", optional = true, default-features = false }
 
 [build-dependencies]
 tauri-build = { version = "2", features = [], optional = true }

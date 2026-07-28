@@ -820,7 +820,7 @@ mod tests {
 Run: `cargo test -p voice-type audio`
 Expected: FALLA.
 
-- [ ] **Step 3: Implementación mínima**
+- [x] **Step 3: Implementación mínima**
 
 ```rust
 use rubato::{Resampler, SincFixedIn, SincInterpolationParameters, SincInterpolationType, WindowFunction};
@@ -848,23 +848,34 @@ pub fn resample_to_16k(mono: &[f32], src_rate: u32) -> Vec<f32> {
 
 `AudioCapture::start` con `cpal`: abrir el device de entrada por defecto (o por nombre), en el callback hacer `downmix_to_mono` + acumular hasta ~30 ms, `resample_to_16k`, y enviar por el `Sender`. (El stream vivo no se testea en unit; ver Step 5.)
 
-> **Parcial.** La conversión pura (`downmix_to_mono`, `resample_to_16k` y el
-> `Resampler16k` continuo) está implementada y testeada. `AudioCapture` con
-> `cpal` queda pendiente: no compila en el entorno Linux donde se hizo el resto
-> (falta ALSA) y su verificación es manual de todos modos. En el callback hay
-> que usar `Resampler16k`, no `resample_to_16k`: crear un resampler por bloque
-> se come el arranque del filtro en cada frontera y entrecorta el audio.
+> **Completo, verificado en Windows 11 (2026-07-27).** La conversión pura
+> (`downmix_to_mono`, `resample_to_16k`, `Resampler16k`) ya estaba. Se agregó
+> `CaptureConverter` — encadena downmix y `Resampler16k`, pura y testeada, es
+> lo que un callback de captura necesita hacer con cada bloque — y sobre eso,
+> `AudioCapture` con `cpal 0.17` (feature `capture`, incluida en `app`).
+> `cpal 0.18.1` (la última al momento de escribir esto) no se pudo usar: trae
+> dos versiones incompatibles de `windows-core` en su propio árbol de
+> dependencias y no compila; `0.17.3` no tiene ese problema.
+>
+> `capture` no se prueba en el job de Linux del CI (necesitaría ALSA); se
+> compila y prueba de verdad sólo en el job de Windows, dentro de `app`.
 
 - [x] **Step 4: Correr tests unit**
 
 Run: `cargo test -p voice-type audio`
-Expected: PASA.
+Expected: PASA. (77 tests en `voice-type`, incluyendo `CaptureConverter`.)
 
-- [ ] **Step 5: Verificación manual de captura**
+- [x] **Step 5: Verificación manual de captura**
 
-Agregar un ejemplo `src-tauri/examples/mic_probe.rs` que capture 3s e imprima nº de muestras y RMS. Run: `cargo run -p voice-type --example mic_probe`. Expected: RMS > 0 al hablar.
+Agregar un ejemplo `src-tauri/examples/mic_probe.rs` que capture 3s e imprima nº de muestras y RMS. Run: `cargo run -p voice-type --example mic_probe --features capture`.
 
-- [ ] **Step 6: Commit**
+> **Verificado parcialmente.** El pipeline funciona de punta a punta:
+> dispositivo encontrado, stream armado, 47498 muestras en ~3 s (48000
+> esperadas a 16 kHz), sin errores. Lo que un agente no puede verificar es "RMS
+> sube al hablar" — no hay forma de producir sonido real. Falta que una persona
+> corra el ejemplo hablando frente al micrófono y confirme que el RMS sube.
+
+- [x] **Step 6: Commit**
 
 ```bash
 git add src-tauri/src/audio.rs src-tauri/src/lib.rs src-tauri/Cargo.toml src-tauri/examples/mic_probe.rs

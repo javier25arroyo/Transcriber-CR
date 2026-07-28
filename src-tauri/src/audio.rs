@@ -95,6 +95,33 @@ impl Resampler16k {
     }
 }
 
+/// Encadena el downmix y el resample continuo: lo que el callback de captura
+/// de audio tiene que hacer con cada bloque que entrega el dispositivo.
+///
+/// Se separa de [`AudioCapture`] para poder testear el algoritmo (¿en qué
+/// orden se combinan downmix y resample? ¿qué pasa con un solo canal?) sin
+/// necesitar un micrófono real. Ver el mismo patrón en `text_injector`.
+pub struct CaptureConverter {
+    channels: usize,
+    resampler: Resampler16k,
+}
+
+impl CaptureConverter {
+    pub fn new(channels: usize, src_rate: u32, chunk: usize) -> Self {
+        Self {
+            channels,
+            resampler: Resampler16k::new(src_rate, chunk),
+        }
+    }
+
+    /// Recibe un bloque intercalado tal como lo entrega el dispositivo y
+    /// devuelve el audio mono a 16 kHz que ya se pueda mandar a segmentar.
+    pub fn push(&mut self, interleaved: &[f32]) -> Vec<f32> {
+        let mono = downmix_to_mono(interleaved, self.channels);
+        self.resampler.push(&mono)
+    }
+}
+
 fn build_resampler(src_rate: u32, chunk: usize) -> Option<SincFixedIn<f32>> {
     let params = SincInterpolationParameters {
         sinc_len: SINC_LEN,
@@ -114,6 +141,96 @@ fn process_block(resampler: &mut SincFixedIn<f32>, block: &[f32]) -> Option<Vec<
     }
     Some(out.swap_remove(0))
 }
+
+#[cfg(feature = "capture")]
+mod system {
+    use super::CaptureConverter;
+    use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
+    use std::sync::mpsc::Sender;
+
+    /// Captura en vivo del micrófono, ya convertida a mono 16 kHz.
+    ///
+    /// No hay tests unitarios acá: `cpal` necesita hardware real, y lo que sí
+    /// se puede probar sin él — el orden downmix→resample — vive en
+    /// [`CaptureConverter`] y está cubierto arriba. Esto se verifica a mano con
+    /// el ejemplo `mic_probe` (ver CONTRIBUTING.md § Manual verification).
+    pub struct AudioCapture {
+        // Un `Stream` de cpal captura mientras exista; soltarlo (drop) para.
+        // Nunca se lee directamente, pero hay que retenerlo con vida.
+        _stream: cpal::Stream,
+    }
+
+    impl AudioCapture {
+        /// Arranca la captura en el dispositivo `device_name` (o el de entrada
+        /// por defecto si es `None`) y manda por `sink` cada bloque de audio ya
+        /// convertido, a medida que el driver lo entrega.
+        pub fn start(device_name: Option<&str>, sink: Sender<Vec<f32>>) -> Result<Self, String> {
+            let host = cpal::default_host();
+            let device = find_device(&host, device_name)?;
+            let config = device.default_input_config().map_err(|e| e.to_string())?;
+
+            if config.sample_format() != cpal::SampleFormat::F32 {
+                // WASAPI en modo compartido (el default en Windows) entrega
+                // f32 casi siempre; el resto de formatos necesitaría una
+                // conversión de tipo que no vale la pena mientras no aparezca
+                // hardware real que la necesite.
+                return Err(format!(
+                    "formato de muestra no soportado: {:?} (se espera F32)",
+                    config.sample_format()
+                ));
+            }
+
+            let channels = config.channels() as usize;
+            let sample_rate = config.sample_rate();
+            // ~30 ms por bloque: bajo en latencia perceptible sin llamar al
+            // resampler en cada puñado de muestras. El tamaño real que entrega
+            // el driver puede no coincidir — `CaptureConverter` no lo necesita.
+            let chunk = ((sample_rate as usize) * 30 / 1000).max(1);
+            let mut converter = CaptureConverter::new(channels, sample_rate, chunk);
+
+            let stream = device
+                .build_input_stream::<f32, _, _>(
+                    &config.into(),
+                    move |data: &[f32], _| {
+                        let out = converter.push(data);
+                        if !out.is_empty() {
+                            // El otro lado (el pipeline) puede haberse ido; no
+                            // hay nada que hacer salvo dejar de mandar, y el
+                            // próximo callback lo va a volver a intentar.
+                            let _ = sink.send(out);
+                        }
+                    },
+                    |err| eprintln!("error de captura de audio: {err}"),
+                    None,
+                )
+                .map_err(|e| e.to_string())?;
+
+            stream.play().map_err(|e| e.to_string())?;
+
+            Ok(Self { _stream: stream })
+        }
+    }
+
+    fn find_device(host: &cpal::Host, name: Option<&str>) -> Result<cpal::Device, String> {
+        match name {
+            Some(name) => host
+                .input_devices()
+                .map_err(|e| e.to_string())?
+                .find(|d| {
+                    d.description()
+                        .map(|desc| desc.name() == name)
+                        .unwrap_or(false)
+                })
+                .ok_or_else(|| format!("dispositivo de entrada no encontrado: {name}")),
+            None => host
+                .default_input_device()
+                .ok_or_else(|| "no hay dispositivo de entrada por defecto".to_string()),
+        }
+    }
+}
+
+#[cfg(feature = "capture")]
+pub use system::AudioCapture;
 
 #[cfg(test)]
 mod tests {
@@ -209,6 +326,46 @@ mod tests {
     fn resample_of_nothing_is_nothing() {
         // Un bloque vacío no puede hacer explotar al resampler.
         assert!(resample_to_16k(&[], 48_000).is_empty());
+    }
+
+    #[test]
+    fn capture_converter_downmixes_before_resampling() {
+        // El orden importa: si `push` remuestreara el interleaved crudo en vez
+        // de la versión ya mezclada a mono, saldría con el largo equivocado (el
+        // doble, por los dos canales) y con valores que no corresponden a
+        // ningún canal real. Un tono constante en L y otro distinto en R tiene
+        // que salir como el promedio de los dos, no como ninguno de ellos.
+        let mut conv = CaptureConverter::new(2, 48_000, 480);
+        let mut interleaved = Vec::with_capacity(480 * 2);
+        for _ in 0..480 {
+            interleaved.push(1.0); // L
+            interleaved.push(0.0); // R
+        }
+
+        let mut total_out = Vec::new();
+        for _ in 0..10 {
+            total_out.extend(conv.push(&interleaved));
+        }
+
+        assert!(!total_out.is_empty());
+        let middle = &total_out[total_out.len() / 4..total_out.len() * 3 / 4];
+        for sample in middle {
+            assert!(
+                (sample - 0.5).abs() < 0.05,
+                "muestra fuera de rango tras downmix+resample: {sample}"
+            );
+        }
+    }
+
+    #[test]
+    fn capture_converter_with_one_channel_skips_the_downmix() {
+        // Con un solo canal (mic mono) `push` tiene que comportarse igual que
+        // alimentar el `Resampler16k` directamente: nada de dividir por 1 ni de
+        // reordenar muestras.
+        let mut conv = CaptureConverter::new(1, 16_000, 480);
+        let block = vec![0.25f32; 100];
+
+        assert_eq!(conv.push(&block), block);
     }
 
     #[test]
