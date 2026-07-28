@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Publicar GitHub Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      # El tag es la fuente de verdad: si no coincide con lo que dicen
+      # Cargo.toml / package.json / tauri.conf.json, publicar sería mentir
+      # sobre qué versión es esa. Ver docs/release-process.md.
+      - name: La versión del tag coincide con los manifiestos
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          node scripts/version.mjs --check --expect "$VERSION"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Extraer notas del CHANGELOG
+        run: node scripts/changelog-section.mjs "$VERSION" > /tmp/release-notes.md
+
+      - name: Crear GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PRERELEASE_FLAG=()
+          if [[ "$VERSION" == *-rc.* ]]; then
+            PRERELEASE_FLAG=(--prerelease)
+          fi
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file /tmp/release-notes.md \
+            "${PRERELEASE_FLAG[@]}"
