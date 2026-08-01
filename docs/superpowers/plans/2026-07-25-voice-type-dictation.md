@@ -621,7 +621,7 @@ git commit -m "feat: AppConfig persistence and shared lib for sidecar"
 > implementar `Engine` con `whisper-rs` y el test de integración con un modelo
 > local.
 
-- [ ] **Step 1: Agregar dependencia y helper de transcripción**
+- [x] **Step 1: Agregar dependencia y helper de transcripción**
 
 `stt-sidecar/Cargo.toml`:
 
@@ -632,7 +632,7 @@ whisper-rs = { version = "0.13", features = ["cuda"] }
 serde_json = "1"
 ```
 
-- [ ] **Step 2: Escribir el test de integración que falla**
+- [x] **Step 2: Escribir el test de integración que falla**
 
 Colocar `stt-sidecar/tests/fixtures/hola.wav` (audio 16k mono, voz en español diciendo "hola mundo") y `models/ggml-base-q5_0.bin` (modelo chico para test rápido).
 
@@ -658,12 +658,15 @@ fn load_wav_16k_mono(path: &str) -> Vec<f32> {
 
 Extraer la lógica a `stt-sidecar/src/lib.rs` con `pub fn transcribe_pcm(...)` para poder testearla; `main.rs` solo hace el loop IPC. Agregar `hound` a `[dev-dependencies]`.
 
-- [ ] **Step 3: Correr el test para verificar que falla**
+- [x] **Step 3: Correr el test para verificar que falla**
 
 Run: `cargo test -p stt-sidecar -- --ignored`
 Expected: FALLA (función no existe / no compila).
 
-- [ ] **Step 4: Implementar `transcribe_pcm` y el loop IPC**
+- [x] **Step 4: Implementar `transcribe_pcm` y el loop IPC** _(desvío: el motor
+  quedó como `WhisperEngine` detrás del trait `Engine` en vez de una función
+  `transcribe_pcm` suelta —el loop IPC ya existía de la Task 5—, y con
+  `whisper-rs` 0.16 en CPU, no 0.13 con CUDA. Ver `docs/progress.md`, Task 6.)_
 
 `stt-sidecar/src/lib.rs`:
 
@@ -765,12 +768,14 @@ fn transcribe_with(ctx: &Option<WhisperContext>, lang: &str, prompt: &str, pcm: 
 }
 ```
 
-- [ ] **Step 5: Correr el test (con modelo local) y verificar que pasa**
+- [x] **Step 5: Correr el test (con modelo local) y verificar que pasa** _(pasó
+  en CPU; el log confirma backend CPU, no CUDA. La verificación de que agarra la
+  GPU queda para cuando se instale el CUDA Toolkit.)_
 
 Run: `cargo test -p stt-sidecar -- --ignored`
 Expected: PASA (transcribe "hola ..."). Verifica que `whisper-rs` con CUDA compila y usa GPU (log de whisper indica backend CUDA).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add stt-sidecar/

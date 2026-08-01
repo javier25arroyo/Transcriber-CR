@@ -11,7 +11,9 @@ use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
 
-use stt_sidecar::{handle, Engine, Flow, UnavailableEngine};
+#[cfg(not(feature = "whisper"))]
+use stt_sidecar::UnavailableEngine;
+use stt_sidecar::{handle, Engine, Flow};
 use voice_type::ipc::{decode, encode, FromSidecar, ToSidecar};
 
 /// Cada cuánto se manda señal de vida. El supervisor espera varios de estos
@@ -49,6 +51,15 @@ fn main() {
 /// El motor real entra con la feature `whisper` (Task 6 del plan). Sin ella el
 /// sidecar arranca igual y contesta un error claro, que es lo que el supervisor
 /// sabe manejar.
+#[cfg(feature = "whisper")]
+fn build_engine() -> Box<dyn Engine> {
+    Box::new(stt_sidecar::WhisperEngine::default())
+}
+
+/// Sin la feature `whisper`, el sidecar arranca igual pero contesta un error
+/// claro a `LoadModel` y `Transcribe`. Así el crate compila y se testea en el
+/// CI sin whisper.cpp ni sus dependencias de build (LLVM, CMake).
+#[cfg(not(feature = "whisper"))]
 fn build_engine() -> Box<dyn Engine> {
     Box::new(UnavailableEngine)
 }

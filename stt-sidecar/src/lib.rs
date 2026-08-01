@@ -9,6 +9,11 @@
 
 use voice_type::ipc::{FromSidecar, ToSidecar};
 
+#[cfg(feature = "whisper")]
+mod whisper_engine;
+#[cfg(feature = "whisper")]
+pub use whisper_engine::WhisperEngine;
+
 /// El motor de reconocimiento, visto desde el protocolo.
 pub trait Engine {
     /// Carga el modelo y lo deja caliente. Se vuelve a llamar cuando cambia el

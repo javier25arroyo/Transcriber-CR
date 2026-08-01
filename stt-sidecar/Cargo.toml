@@ -17,11 +17,34 @@ repository.workspace = true
 voice-type = { path = "../src-tauri", default-features = false }
 serde_json = "1"
 
-# El motor real (whisper.cpp con CUDA) entra con esta feature, apagada por
-# defecto. Así el crate compila y se testea en cualquier máquina —incluido el
-# CI, que no tiene CUDA Toolkit— y el build de producción usa
+# El motor real (whisper.cpp) entra con esta feature, apagada por defecto. Así
+# el crate compila y se testea en cualquier máquina —incluido el CI, que no
+# tiene CUDA Toolkit— y el build de producción usa
 # `cargo build -p stt-sidecar --features whisper`. Sin la feature, el sidecar
 # arranca igual y contesta un error claro a LoadModel y Transcribe.
+#
+# Va sin la feature `cuda` de whisper-rs a propósito: esta máquina tiene driver
+# NVIDIA pero no el CUDA Toolkit (falta `nvcc`), así que compilar contra cuda
+# fallaría. `whisper-rs` sin features usa el backend CPU de whisper.cpp, que
+# sólo necesita un compilador de C/C++. Agregar `cuda` de vuelta cuando el
+# Toolkit esté instalado es cambiar una línea acá.
+whisper-rs = { version = "0.16", optional = true, default-features = false }
+
 [features]
 default = []
-whisper = []
+whisper = ["dep:whisper-rs"]
+# Sólo la usa el ejemplo `dictation_probe`: enciende la captura de micrófono de
+# voice-type (cpal) para poder dictar de punta a punta en la terminal sin
+# levantar toda la app Tauri. El sidecar de producción no captura audio —lo
+# recibe por IPC—, así que esta feature no entra en su build.
+capture = ["voice-type/capture"]
+
+[dev-dependencies]
+hound = "3"
+
+# Prueba manual de dictado: micrófono → segmentador → WhisperEngine → texto en
+# la terminal. Necesita las dos features (motor real + captura) y un modelo
+# local; ver CONTRIBUTING.md § Manual verification.
+[[example]]
+name = "dictation_probe"
+required-features = ["whisper", "capture"]

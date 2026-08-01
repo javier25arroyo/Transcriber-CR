@@ -28,7 +28,7 @@ ALSA**. El objetivo del producto sigue siendo Windows 11. Consecuencia práctica
 | 3 | `post_processor` | Hecho | 9 tests unitarios |
 | 4 | `ipc` | Hecho | 5 tests unitarios |
 | 5 | `config` | Hecho | 6 tests unitarios + smoke test del sidecar |
-| 6 | Sidecar STT (whisper-rs) | Preparada: protocolo hecho | 6 tests contra un motor de mentira; falta el motor real |
+| 6 | Sidecar STT (whisper-rs) | **Hecho (CPU), verificado en Windows** | 9 unitarios + 1 de integración (voz real) con la feature `whisper`; `dictation_probe` dicta de punta a punta. Falta CUDA. |
 | 7 | `audio` | **Hecho, verificado en Windows** | 12 tests unitarios; `mic_probe` corrió de punta a punta (falta que alguien hable frente al micro para el último check) |
 | 8 | `vad` | Hecho | 8 tests unitarios |
 | 9 | `supervisor` | Hecho | 8 unitarios + 4 de integración con procesos reales |
@@ -45,11 +45,11 @@ Ordenado por lo que desbloquea más:
 
 1. ~~**Task 1, step 3** — `pnpm tauri dev` tiene que abrir la ventana.~~ **Hecho
    el 2026-07-27**: ver la entrada de la Task 1 más abajo.
-2. **Task 6** — implementar `Engine` con `whisper-rs`. El protocolo, el loop de
-   IPC y el heartbeat ya están y testeados; lo único que falta es la llamada a
-   whisper.cpp detrás del trait, con la feature `whisper`.
-3. **Task 7, captura** — `AudioCapture` con `cpal` y el ejemplo `mic_probe`.
-   En el callback va `Resampler16k`, no `resample_to_16k`.
+2. ~~**Task 6** — implementar `Engine` con `whisper-rs`.~~ **Hecho el 2026-07-31
+   (CPU)**: ver la entrada de la Task 6 más abajo. Queda pendiente sólo la
+   variante con CUDA.
+3. ~~**Task 7, captura** — `AudioCapture` con `cpal` y el ejemplo `mic_probe`.~~
+   **Hecho el 2026-07-27**: ver la entrada de la Task 7.
 4. **Tasks 11 a 15** — pipeline, hotkeys, píldora, popup de vocabulario y el
    servicio (bandeja, autostart, descarga del modelo).
 
@@ -537,42 +537,91 @@ cargo test -p voice-type --no-default-features                 → 75 unitarios 
 **Pendiente (Windows).** `ensure_model` con la descarga real, la bandeja, el
 autostart, la instancia única y el logging con rotación diaria.
 
-### Task 6 — Sidecar STT (preparada, falta el motor)
+### Task 6 — Sidecar STT
 
-**Qué se hizo.** El sidecar quedó partido en dos: `stt-sidecar/src/lib.rs`
-maneja el protocolo contra el trait `Engine`, y el motor real es una
-implementación más de ese trait.
+**Preparación previa (protocolo).** El sidecar ya estaba partido en dos:
+`stt-sidecar/src/lib.rs` maneja el protocolo contra el trait `Engine`, y el
+motor real es una implementación más de ese trait. Con el trait, lo único que
+queda sin cobertura automática es la llamada a whisper.cpp; todo el resto —qué
+contestar a cada mensaje, qué pasa si el modelo no carga, que el `id` vuelva
+igual— se testea con un motor de mentira en cualquier máquina. Cuando falla un
+segmento, el error lleva el `id` adentro del mensaje, para que del otro lado se
+sepa qué segmento se perdió.
 
-**Por qué.** `whisper-rs` necesita el CUDA Toolkit para compilar y una GPU para
-correr. Con el manejo de mensajes pegado al motor, nada de eso se podía probar
-en ningún CI. Con el trait, lo único que queda sin cobertura automática es la
-llamada a whisper.cpp; todo el resto —qué contestar a cada mensaje, qué pasa si
-el modelo no carga, que el `id` vuelva igual— se testea con un motor de mentira
-en cualquier máquina.
+**Terminado en Windows 11 (2026-07-31), rama `task/06-stt-engine`. Motor real,
+backend CPU.**
 
-`whisper-rs` va detrás de la feature `whisper`, apagada por defecto. El build de
-producción es `cargo build -p stt-sidecar --features whisper --release`; sin
-ella, el sidecar arranca igual y contesta un error que dice exactamente qué
-falta.
+`WhisperEngine` (`stt-sidecar/src/whisper_engine.rs`) implementa el trait
+`Engine` sobre `whisper-rs`. Carga el contexto una vez y lo mantiene caliente;
+`load()` lo recrea porque el idioma y el `initial_prompt` (vocabulario) son
+parte de los parámetros de reconocimiento. `build_engine()` en `main.rs` lo
+elige con `#[cfg(feature = "whisper")]` y cae a `UnavailableEngine` sin la
+feature, así el crate sigue compilando y testeándose en el CI sin whisper.cpp.
 
-**Detalle que importa.** Cuando falla un segmento, el error lleva el `id`
-adentro del mensaje. Sin eso, del otro lado no hay forma de saber qué segmento
-se perdió.
+**Se subió `whisper-rs` de 0.13 a 0.16.** La 0.13 (que pedía el plan) no
+compila en esta máquina: su `whisper-rs-sys` usa bindgen 0.69, que con el LLVM
+22 instalado acá genera un `whisper_full_params` opaco (sólo el campo
+`_address`) y la compilación revienta con decenas de "unknown field". La 0.16
+trae bindgen 0.72, que sí parsea bien contra clang 22. La API cambió un poco
+(`full_n_segments` devuelve `c_int`, el texto sale por `get_segment(i)
+.to_str_lossy()`), reflejado en el motor.
 
-**Pruebas ejecutadas.**
+**Sin CUDA, a propósito.** Esta máquina tiene driver NVIDIA (RTX 4060) pero no
+el CUDA Toolkit (`nvcc` no está), así que `whisper-rs` va **sin** la feature
+`cuda`: usa el backend CPU de whisper.cpp. El log de carga lo confirma
+(`use gpu = 0`, `whisper_backend_init_gpu: no GPU found`, `CPU total size =
+147.37 MB`). Prender CUDA cuando el Toolkit esté instalado es cambiar una línea
+del `Cargo.toml`; nada del motor cambia.
+
+**Prerrequisitos de build que faltaban (y ahora están instalados).** En
+Windows, `whisper-rs` compila whisper.cpp desde fuente, y eso pide más de lo
+que cargo trae solo:
+
+- **LLVM** (`winget install LLVM.LLVM`) — `libclang`, para que bindgen genere
+  los bindings.
+- **CMake** (`winget install Kitware.CMake`) — VS 2022 no traía el componente.
+- Los headers del CRT de **MSVC** y del **Windows SDK**, más los builtin de
+  clang: el driver de clang que usa bindgen **no** lee la variable `INCLUDE`
+  del entorno de VS, así que hay que pasárselos con `-I` por
+  `BINDGEN_EXTRA_CLANG_ARGS`.
+
+Para no tener que acordarse de todo eso, `scripts/build-whisper.ps1` descubre
+las rutas (vswhere para MSVC, la última versión del SDK, el LLVM instalado) y
+corre cargo con el entorno listo. Un `cargo build --features whisper` pelado
+falla con "stdio.h file not found".
+
+**Pruebas ejecutadas (Windows 11, RTX 4060 Laptop).**
 
 ```
-cargo test -p stt-sidecar   → 6 passed
-cargo clippy -p stt-sidecar --all-targets -- -D warnings  → sin warnings
+cargo fmt --all -- --check                                              → OK
+cargo clippy -p stt-sidecar --all-targets -- -D warnings  (sin whisper) → sin warnings
+build-whisper.ps1 → clippy -p stt-sidecar --features "whisper capture"
+  --all-targets -- -D warnings                                          → sin warnings
+cargo test -p stt-sidecar               (sin whisper)  → 6 passed
+build-whisper.ps1 → test -p stt-sidecar --features whisper → 9 passed, 1 ignored
+build-whisper.ps1 → test ... --features whisper -- --ignored → 1 passed (voz real)
+cargo test -p voice-type --no-default-features          → 77 + 4, sin regresión
 ```
 
-Smoke test del binario, mandándole LoadModel, una línea basura, Transcribe y
-Shutdown:
+El test de integración `transcribes_reference_wav` carga el modelo local y
+transcribe `hola_mundo.wav`, verificando que el texto contenga "hola". El wav
+no es la voz de nadie: es habla sintética generada con el TTS de Windows (SAPI)
+por `scripts/generate-test-fixtures.ps1`, así el motor se prueba con voz real
+sin que haya que grabar a mano ni versionar la voz de una persona.
 
-```
-{"type":"Error","message":"sidecar compilado sin motor STT: falta la feature `whisper` (Task 6 del plan)"}
-{"type":"Error","message":"segmento 9: sidecar compilado sin motor STT: falta la feature `whisper` (Task 6 del plan)"}
+**Verificación manual con `dictation_probe`.** El ejemplo captura el micrófono,
+corta por silencio y transcribe cada segmento, imprimiendo el texto. Corrido de
+punta a punta: carga el modelo, abre el micro, imprime `Escuchando` y transcribe
+lo que entra (en la corrida del agente, sin nadie hablando, salieron las
+alucinaciones típicas de Whisper sobre silencio —`[Música]`, frases sueltas—,
+que es lo esperado). El pipeline mic → `Segmenter` → `WhisperEngine` → texto
+corre en vivo sin crashear. **Falta que una persona hable frente al micro** y
+confirme que el texto dictado sale bien:
+
+```powershell
+./scripts/build-whisper.ps1 run -p stt-sidecar --example dictation_probe --features "whisper capture" -- models/ggml-base.bin es
 ```
 
-**Pendiente (Windows con CUDA).** Implementar `Engine` con `whisper-rs` y el
-test de integración contra un modelo local.
+**Pendiente.** La variante con CUDA (instalar el Toolkit y agregar la feature
+`cuda`), y confirmar en el log que agarra la GPU en vez de CPU. El resto del
+motor no cambia.

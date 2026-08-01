@@ -9,15 +9,25 @@ development, but it's built to be contributable.
    [pnpm](https://pnpm.io/installation) (the version pinned in `package.json`'s
    `packageManager` field — `corepack enable` picks it up automatically on
    recent Node).
-2. For the STT sidecar, install the [CUDA Toolkit 12.x](https://developer.nvidia.com/cuda-downloads)
-   (an NVIDIA GPU with 8 GB+ VRAM is required to build and run it; CPU fallback
-   exists at runtime but isn't required to build).
+2. For the STT sidecar's `whisper` feature, `whisper-rs` builds whisper.cpp
+   from source, so it needs a C/C++ toolchain that cargo alone won't find on a
+   fresh Windows box:
+   - [LLVM](https://github.com/llvm/llvm-project/releases) (`winget install LLVM.LLVM`) —
+     `libclang`, used by bindgen to generate the whisper.cpp bindings.
+   - [CMake](https://cmake.org/download/) (`winget install Kitware.CMake`) —
+     builds the whisper.cpp static library.
+   - Visual Studio 2022 with the C++ toolset (MSVC + the Windows SDK).
+
+   You don't have to remember the include paths: `scripts/build-whisper.ps1`
+   discovers them and runs cargo with the right environment (see
+   [Running tests](#running-tests)). The `whisper` feature builds with the CPU
+   backend by default; the [CUDA Toolkit 12.x](https://developer.nvidia.com/cuda-downloads)
+   (NVIDIA GPU, 8 GB+ VRAM) is only needed to build it with GPU acceleration.
 3. Verify your toolchain:
 
    ```bash
    rustc --version
    node --version
-   nvcc --version
    ```
 
 4. Install frontend dependencies and start the dev app:
@@ -81,12 +91,21 @@ Three tiers, from cheapest to most expensive:
 | `cargo test -p voice-type --no-default-features` | Pure logic only — no Tauri, no built frontend, runs on any OS | Yes (Linux job) |
 | `cargo test -p voice-type` | The same tests plus everything the Tauri app pulls in; needs `pnpm build` first | Yes (Windows job) |
 | `pnpm test` | Frontend unit tests | Yes |
-| `cargo test -p stt-sidecar` | The sidecar's protocol handling, against a fake engine — no CUDA needed | Yes (Linux job) |
-| `cargo test -p stt-sidecar --features whisper -- --ignored` | Real transcription against a local model, requires CUDA and a downloaded model | No — local only |
+| `cargo test -p stt-sidecar` | The sidecar's protocol handling, against a fake engine — no whisper build needed | Yes (Linux job) |
+| `./scripts/build-whisper.ps1 test -p stt-sidecar --features whisper -- --ignored` | Real transcription against a local model — needs the C/C++ toolchain and a downloaded model | No — local only |
 
 The first row is the one to reach for while working on a module: it skips the
 `app` feature, so `cargo` never has to build Tauri or find a WebView. The
 Windows job is what proves the app itself still compiles.
+
+Anything that touches the `whisper` feature has to go through
+`scripts/build-whisper.ps1` on Windows (it sets `LIBCLANG_PATH`,
+`BINDGEN_EXTRA_CLANG_ARGS` and puts CMake on `PATH`); a plain
+`cargo build --features whisper` fails because bindgen can't find the CRT
+headers on its own. The integration test needs `models/ggml-base.bin` — download
+it once from
+[Hugging Face](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin)
+into `models/` (git-ignored).
 
 ## Manual verification
 
@@ -97,8 +116,15 @@ merging a PR that touches them:
   RMS rises when you speak.
 - Text injection into a focused window (`text_injector` module) — run the
   `inject_probe` example against Notepad.
-- Actual GPU transcription — confirm `whisper-rs` logs show the CUDA backend,
-  not CPU fallback.
+- End-to-end dictation — run the `dictation_probe` example and speak; confirm
+  the recognised text prints:
+
+  ```powershell
+  ./scripts/build-whisper.ps1 run -p stt-sidecar --example dictation_probe --features "whisper capture" -- models/ggml-base.bin es
+  ```
+
+- Actual GPU transcription — build the `whisper` feature with CUDA and confirm
+  `whisper-rs` logs show the CUDA backend, not CPU fallback.
 - Sidecar crash recovery — kill the sidecar process from Task Manager while
   dictating, confirm the supervisor restarts it and dictation keeps working.
 - Autostart at Windows login.

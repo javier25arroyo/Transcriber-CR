@@ -38,6 +38,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Crate `stt-sidecar` con el loop de IPC, el heartbeat y el manejo del
   protocolo contra el trait `Engine`. El motor real entra con la feature
   `whisper`, apagada por defecto.
+- Motor STT real: `WhisperEngine` implementa el trait `Engine` sobre
+  `whisper-rs` 0.16 (whisper.cpp), detrás de la feature `whisper`. Carga el
+  modelo, lo mantiene caliente y transcribe cada segmento; `build_engine()` lo
+  usa cuando el sidecar se compila con la feature y cae a `UnavailableEngine`
+  si no. Se compila con el backend CPU de whisper.cpp (sin la feature `cuda`);
+  prender CUDA es cambiar una línea de la dependencia.
+- Ejemplo `dictation_probe` (features `whisper` + `capture`): dicta de punta a
+  punta en la terminal — micrófono → segmentador → `WhisperEngine` → texto —
+  para probar el motor sin levantar la app Tauri.
+- Test de integración `transcribes_reference_wav` (`#[ignore]`): transcribe un
+  wav de voz sintética y verifica el texto contra el modelo local.
+- `scripts/build-whisper.ps1`: descubre LLVM (libclang), CMake y los headers de
+  MSVC/Windows SDK, y corre cargo con el entorno que la feature `whisper`
+  necesita en Windows.
+- `scripts/generate-test-fixtures.ps1`: regenera el fixture de audio del test de
+  integración con la síntesis de voz de Windows (SAPI), a 16 kHz mono.
 - Módulo `pipeline`: qué se escribe en la ventana por cada segmento
   transcripto.
 - Módulo `hotkeys`: `DictationState` y la semántica del toggle.
