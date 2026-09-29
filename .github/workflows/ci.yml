@@ -149,6 +149,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # La tarjeta imprimible se genera desde el mismo JSON que usa la app; si
+      # alguien edita el banco y no la regenera, la tarjeta en papel quedaría
+      # diciendo otra cosa. Ver docs/phrasebook/README.md.
+      - name: Tarjeta de frases al día con el banco
+        run: pnpm phrasebook:check
+
       - name: Unit tests
         run: pnpm test
 

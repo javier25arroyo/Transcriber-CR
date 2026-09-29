@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Banco de frases español → japonés para pedir ayuda sin internet
+  (`src-tauri/phrasebook/es-ja.json`), centrado en las necesidades de una
+  persona con tetraplejia: emergencias, disreflexia autonómica, sonda, golpe
+  de calor, reposicionamiento, silla de ruedas y transporte.
+- Módulo `phrasebook`: encuentra la frase del banco a partir de lo dictado en
+  español, por palabras clave y sin distinguir tildes ni puntuación. El banco
+  va compilado dentro del binario. Todavía no está cableado al pipeline ni a
+  la UI.
+- `scripts/phrasebook-card.mjs` y `docs/phrasebook/tarjeta-es-ja.html`:
+  tarjeta autocontenida que se abre sin conexión en el teléfono (tocar una
+  frase la muestra en grande) y se imprime para llevar en la silla. El CI
+  verifica que siga al día con el banco (`pnpm phrasebook:check`). Ver
+  [docs/phrasebook/README.md](docs/phrasebook/README.md).
 - Flujo de ramas `develop` → `release/*` → `main` con tag, documentado en
   [ADR 0006](docs/adr/0006-branching-and-release-flow.md) y en
   [docs/release-process.md](docs/release-process.md). `develop` pasa a ser la

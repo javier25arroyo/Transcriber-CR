@@ -1,0 +1,401 @@
+<!doctype html>
+<!-- Generado por scripts/phrasebook-card.mjs a partir de src-tauri/phrasebook/es-ja.json. No editar a mano. -->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tarjeta de ayuda</title>
+<style>
+:root {
+  --bg: #ffffff;
+  --fg: #16181d;
+  --muted: #5b6270;
+  --line: #d9dce3;
+  --card: #f5f6f8;
+  --accent: #b42318;
+  --accent-bg: #fef3f2;
+}
+@media screen and (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111317;
+    --fg: #eef0f4;
+    --muted: #a3aab8;
+    --line: #2c313b;
+    --card: #1a1d23;
+    --accent: #ff8a80;
+    --accent-bg: #2a1614;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0 auto;
+  max-width: 60rem;
+  padding: 16px;
+  background: var(--bg);
+  color: var(--fg);
+  font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+:lang(ja) {
+  font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", YuGothic, Meiryo,
+    "Noto Sans CJK JP", "Noto Sans JP", IPAGothic, sans-serif;
+}
+h2 { font-size: 1.15rem; margin: 1.6rem 0 0.6rem; }
+h3 { font-size: 0.95rem; color: var(--muted); margin: 1.1rem 0 0.4rem; font-weight: 600; }
+h3 span { margin-left: 0.4em; }
+.cover { text-align: center; padding: 0.5rem 0 0.25rem; }
+.cover .read { font-size: 1.6rem; font-weight: 700; margin: 0; }
+.cover .read-es { color: var(--muted); margin: 0.1rem 0 0.8rem; }
+.box { border: 2px solid var(--line); border-radius: 12px; padding: 0.6rem 0.9rem; margin: 0.9rem 0; }
+.box h2 { margin-top: 0.2rem; }
+.emergency { border-color: var(--accent); background: var(--accent-bg); }
+.emergency ul { list-style: none; margin: 0; padding: 0; }
+.emergency li { display: grid; grid-template-columns: 9.5rem 1fr; gap: 0.2rem 0.8rem; padding: 0.3rem 0; }
+.emergency .num { font-size: 1.35rem; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; }
+.emergency .what span { display: block; }
+.medical dl { display: grid; grid-template-columns: minmax(9rem, 14rem) 1fr; margin: 0; }
+.medical dt, .medical dd { border-bottom: 1px solid var(--line); padding: 0.55rem 0 0.2rem; margin: 0; }
+.medical dt small { display: block; color: var(--muted); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: 0.5rem; }
+.phrase {
+  display: flex; flex-direction: column; gap: 0.15rem;
+  width: 100%; text-align: left; font: inherit; color: inherit;
+  background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+  padding: 0.55rem 0.75rem; cursor: pointer; break-inside: avoid;
+}
+.phrase:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.phrase .ja { font-size: 1.3rem; line-height: 1.35; font-weight: 600; }
+.phrase .es { font-size: 0.92rem; }
+.phrase .romaji { font-size: 0.8rem; color: var(--muted); font-style: italic; }
+.phrase.hero { text-align: center; align-items: center; border: 2px solid var(--accent); }
+.phrase.hero .ja { font-size: 1.75rem; }
+.phrase.hero .es { font-size: 1rem; }
+.hint { color: var(--muted); font-size: 0.85rem; }
+footer { margin-top: 2rem; color: var(--muted); font-size: 0.8rem; }
+#zoom {
+  position: fixed; inset: 0; z-index: 10;
+  display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 1.2rem;
+  padding: 24px 16px; background: var(--bg); text-align: center; cursor: pointer;
+}
+#zoom[hidden] { display: none; }
+#zoom .ja { font-size: clamp(2rem, 9vw, 4.5rem); line-height: 1.3; font-weight: 700; overflow-wrap: anywhere; }
+#zoom .es { font-size: 1.1rem; color: var(--muted); }
+#zoom .speak {
+  font: inherit; font-size: 1.1rem; padding: 0.7rem 1.4rem; border-radius: 999px;
+  border: 2px solid var(--accent); background: var(--accent-bg); color: var(--fg); cursor: pointer;
+}
+#zoom .close { color: var(--muted); font-size: 0.9rem; }
+@media (max-width: 30rem) {
+  .emergency li { grid-template-columns: 1fr; }
+  .medical dl { grid-template-columns: 1fr; }
+  .medical dd { min-height: 2rem; }
+}
+/* Impresa, la parte crítica (portada, números, datos médicos y frases
+   críticas) tiene que caber en pocas hojas para plastificarla y llevarla en
+   la silla; "Más frases" arranca en hoja nueva para poder imprimirla aparte. */
+@page { size: A4; margin: 10mm; }
+@media print {
+  body { max-width: none; padding: 0; font-size: 9.5pt; }
+  .hint, #zoom { display: none !important; }
+  h2 { font-size: 11.5pt; margin: 0.7rem 0 0.3rem; }
+  h3 { font-size: 9.5pt; margin: 0.5rem 0 0.2rem; }
+  .cover .read { font-size: 16pt; }
+  .cover .read-es { margin-bottom: 0.4rem; }
+  .box { padding: 0.3rem 0.6rem; margin: 0.5rem 0; }
+  .emergency li { grid-template-columns: 10.5rem 1fr; padding: 0.15rem 0; }
+  .emergency .num { font-size: 14pt; white-space: nowrap; }
+  /* Una casilla por renglón: a mano, "medicamentos" o "contacto" no caben en media hoja. */
+  .medical dl { grid-template-columns: 11rem 1fr; }
+  .medical dt, .medical dd { padding: 0.35rem 0 0.1rem; }
+  .medical dt small { display: inline; margin-left: 0.4em; }
+  .grid { gap: 0.3rem; }
+  .phrase { background: none; padding: 0.25rem 0.45rem; gap: 0.05rem; }
+  .phrase .ja { font-size: 12pt; }
+  .phrase .es { font-size: 9pt; }
+  .phrase .romaji { font-size: 8pt; }
+  .phrase.hero .ja { font-size: 17pt; }
+  .phrase.hero .es { font-size: 10pt; }
+  .more { break-before: page; }
+  h2, h3 { break-after: avoid; }
+}
+</style>
+</head>
+<body>
+<header class="cover">
+<p class="read" lang="ja">このカードを読んでください</p>
+<p class="read-es">Por favor, lea esta tarjeta.</p>
+<button type="button" class="phrase hero" id="tetraplejia"><span class="ja" lang="ja">頸髄損傷による四肢麻痺で、首から下が動きません。</span><span class="es">Tengo tetraplejia por una lesión en la médula cervical: no puedo mover el cuerpo del cuello para abajo.</span><span class="romaji">Keizui sonshō ni yoru shishi mahi de, kubi kara shita ga ugokimasen.</span></button>
+</header>
+<p class="hint">Toque una frase para verla en pantalla completa (y escucharla, si el teléfono tiene una voz japonesa instalada).</p>
+
+<section class="box emergency">
+<h2>Números de emergencia <span lang="ja">緊急電話</span></h2>
+<ul>
+<li><span class="num">119</span><span class="what"><span lang="ja">救急車・消防</span><span>Ambulancia y bomberos. En Tokio hay intérprete de español: no cuelgue, tarda unos segundos en conectarse. Fuera de Tokio depende del municipio.</span></span></li>
+<li><span class="num">110</span><span class="what"><span lang="ja">警察</span><span>Policía.</span></span></li>
+<li><span class="num">050-3816-2787</span><span class="what"><span lang="ja">訪日外国人旅行者向けホットライン</span><span>Japan Visitor Hotline (JNTO): 24 horas, en inglés, chino y coreano. No atiende en español.</span></span></li>
+</ul>
+</section>
+
+<section class="box medical">
+<h2>Mis datos médicos <span lang="ja">医療情報</span></h2>
+<dl>
+<dt><span lang="ja">名前</span><small>Nombre</small></dt><dd></dd>
+<dt><span lang="ja">生年月日</span><small>Fecha de nacimiento</small></dt><dd></dd>
+<dt><span lang="ja">血液型</span><small>Tipo de sangre</small></dt><dd></dd>
+<dt><span lang="ja">損傷レベル</span><small>Nivel de la lesión (p. ej. C4)</small></dt><dd></dd>
+<dt><span lang="ja">服用中の薬</span><small>Medicamentos que tomo</small></dt><dd></dd>
+<dt><span lang="ja">アレルギー</span><small>Alergias</small></dt><dd></dd>
+<dt><span lang="ja">主治医</span><small>Mi médico (país de origen)</small></dt><dd></dd>
+<dt><span lang="ja">緊急連絡先</span><small>Contacto de emergencia</small></dt><dd></dd>
+<dt><span lang="ja">滞在先</span><small>Hotel y dirección en Japón</small></dt><dd></dd>
+<dt><span lang="ja">旅行保険</span><small>Seguro de viaje (póliza y teléfono)</small></dt><dd></dd>
+</dl>
+</section>
+
+<section class="critical">
+<h2>Frases críticas <span lang="ja">緊急時のお願い</span></h2>
+<section class="category">
+<h3>Para empezar <span lang="ja">はじめに</span></h3>
+<div class="grid">
+<button type="button" class="phrase" id="ayuda"><span class="ja" lang="ja">すみません、手伝っていただけますか。</span><span class="es">Disculpe, ¿me puede ayudar?</span><span class="romaji">Sumimasen, tetsudatte itadakemasu ka.</span></button>
+<button type="button" class="phrase" id="lea-pantalla"><span class="ja" lang="ja">この画面を読んでください。</span><span class="es">Por favor, lea esta pantalla.</span><span class="romaji">Kono gamen o yonde kudasai.</span></button>
+<button type="button" class="phrase" id="no-hablo-japones"><span class="ja" lang="ja">日本語が話せません。スペイン語を話します。</span><span class="es">No hablo japonés. Hablo español.</span><span class="romaji">Nihongo ga hanasemasen. Supeingo o hanashimasu.</span></button>
+<button type="button" class="phrase" id="responda-si-no"><span class="ja" lang="ja">「はい」か「いいえ」で答えてください。</span><span class="es">Por favor, respóndame con «sí» o «no» (moviendo la cabeza).</span><span class="romaji">“Hai” ka “iie” de kotaete kudasai.</span></button>
+</div>
+</section>
+<section class="category">
+<h3>Emergencias <span lang="ja">緊急</span></h3>
+<div class="grid">
+<button type="button" class="phrase" id="socorro"><span class="ja" lang="ja">助けて！</span><span class="es">¡Auxilio! ¡Ayúdenme!</span><span class="romaji">Tasukete!</span></button>
+<button type="button" class="phrase" id="ambulancia"><span class="ja" lang="ja">救急車を呼んでください。</span><span class="es">Llame a una ambulancia, por favor.</span><span class="romaji">Kyūkyūsha o yonde kudasai.</span></button>
+<button type="button" class="phrase" id="emergencia"><span class="ja" lang="ja">緊急です！</span><span class="es">¡Es una emergencia!</span><span class="romaji">Kinkyū desu!</span></button>
+<button type="button" class="phrase" id="respirar"><span class="ja" lang="ja">息が苦しいです。</span><span class="es">Me cuesta respirar.</span><span class="romaji">Iki ga kurushii desu.</span></button>
+<button type="button" class="phrase" id="disreflexia"><span class="ja" lang="ja">自律神経過反射かもしれません。血圧が急に上がる、命にかかわる状態です。</span><span class="es">Puede ser disreflexia autonómica: la presión sube de golpe y es peligroso.</span><span class="romaji">Jiritsu shinkei kahansha kamo shiremasen. Ketsuatsu ga kyū ni agaru, inochi ni kakawaru jōtai desu.</span></button>
+<button type="button" class="phrase" id="sentarme"><span class="ja" lang="ja">すぐに上半身を起こして、足を下ろしてください。</span><span class="es">Siénteme derecho de inmediato y bájeme las piernas.</span><span class="romaji">Sugu ni jōhanshin o okoshite, ashi o oroshite kudasai.</span></button>
+<button type="button" class="phrase" id="aflojar-ropa"><span class="ja" lang="ja">服、ベルト、靴をゆるめてください。</span><span class="es">Afloje mi ropa, el cinturón y los zapatos.</span><span class="romaji">Fuku, beruto, kutsu o yurumete kudasai.</span></button>
+<button type="button" class="phrase" id="revisar-sonda"><span class="ja" lang="ja">尿カテーテルが折れ曲がっていないか、尿バッグがいっぱいになっていないか確認してください。</span><span class="es">Revise si la sonda de orina está doblada o si la bolsa está llena.</span><span class="romaji">Nyō katēteru ga oremagatte inai ka, nyō baggu ga ippai ni natte inai ka kakunin shite kudasai.</span></button>
+<button type="button" class="phrase" id="presion"><span class="ja" lang="ja">血圧を測ってください。</span><span class="es">Por favor, tómeme la presión arterial.</span><span class="romaji">Ketsuatsu o hakatte kudasai.</span></button>
+<button type="button" class="phrase" id="hospital"><span class="ja" lang="ja">病院に連れて行ってください。</span><span class="es">Lléveme a un hospital, por favor.</span><span class="romaji">Byōin ni tsurete itte kudasai.</span></button>
+<button type="button" class="phrase" id="no-me-deje"><span class="ja" lang="ja">一人にしないでください。</span><span class="es">Por favor, no me deje solo.</span><span class="romaji">Hitori ni shinaide kudasai.</span></button>
+<button type="button" class="phrase" id="caida"><span class="ja" lang="ja">車いすから落ちました。</span><span class="es">Me caí de la silla de ruedas.</span><span class="romaji">Kurumaisu kara ochimashita.</span></button>
+<button type="button" class="phrase" id="cuello"><span class="ja" lang="ja">首に気をつけて、支えながら動かしてください。</span><span class="es">Cuidado con mi cuello: sosténgalo al moverme.</span><span class="romaji">Kubi ni ki o tsukete, sasae nagara ugokashite kudasai.</span></button>
+<button type="button" class="phrase" id="evacuar"><span class="ja" lang="ja">避難を手伝ってください。私は階段が使えません。避難場所はどこですか。</span><span class="es">Ayúdeme a evacuar: no puedo usar escaleras. ¿Dónde está el refugio?</span><span class="romaji">Hinan o tetsudatte kudasai. Watashi wa kaidan ga tsukaemasen. Hinan basho wa doko desu ka.</span></button>
+<button type="button" class="phrase" id="contacto-emergencia"><span class="ja" lang="ja">緊急連絡先に電話してください。番号はこのカードに書いてあります。</span><span class="es">Llame a mi contacto de emergencia; el número está en mi tarjeta.</span><span class="romaji">Kinkyū renrakusaki ni denwa shite kudasai. Bangō wa kono kādo ni kaite arimasu.</span></button>
+</div>
+</section>
+<section class="category">
+<h3>Salud <span lang="ja">体調</span></h3>
+<div class="grid">
+<button type="button" class="phrase" id="dolor"><span class="ja" lang="ja">痛みがあります。</span><span class="es">Tengo dolor.</span><span class="romaji">Itami ga arimasu.</span></button>
+<button type="button" class="phrase" id="dolor-cabeza"><span class="ja" lang="ja">ひどい頭痛がします。</span><span class="es">Tengo un dolor de cabeza muy fuerte.</span><span class="romaji">Hidoi zutsū ga shimasu.</span></button>
+<button type="button" class="phrase" id="calor"><span class="ja" lang="ja">とても暑いです。汗がかけないので、熱中症になりやすいです。</span><span class="es">Tengo mucho calor: no puedo sudar y me puede dar un golpe de calor.</span><span class="romaji">Totemo atsui desu. Ase ga kakenai node, netchūshō ni nariyasui desu.</span></button>
+<button type="button" class="phrase" id="medicina"><span class="ja" lang="ja">薬を飲む時間です。かばんの中の薬を飲ませてもらえますか。</span><span class="es">Es hora de mi medicina. Está en mi bolso; ¿me ayuda a tomarla?</span><span class="romaji">Kusuri o nomu jikan desu. Kaban no naka no kusuri o nomasete moraemasu ka.</span></button>
+<button type="button" class="phrase" id="alergia"><span class="ja" lang="ja">薬のアレルギーがあります。</span><span class="es">Soy alérgico a algunos medicamentos.</span><span class="romaji">Kusuri no arerugī ga arimasu.</span></button>
+<button type="button" class="phrase" id="tarjeta-medica"><span class="ja" lang="ja">私の医療情報はこのカードに書いてあります。</span><span class="es">Mi información médica está en esta tarjeta.</span><span class="romaji">Watashi no iryō jōhō wa kono kādo ni kaite arimasu.</span></button>
+</div>
+</section>
+<section class="category">
+<h3>Baño <span lang="ja">トイレ</span></h3>
+<div class="grid">
+<button type="button" class="phrase" id="bano"><span class="ja" lang="ja">トイレに行きたいです。</span><span class="es">Necesito ir al baño.</span><span class="romaji">Toire ni ikitai desu.</span></button>
+<button type="button" class="phrase" id="vaciar-bolsa"><span class="ja" lang="ja">尿バッグを空にしてもらえますか。</span><span class="es">¿Puede vaciar mi bolsa de orina?</span><span class="romaji">Nyō baggu o kara ni shite moraemasu ka.</span></button>
+</div>
+</section>
+<section class="category">
+<h3>Silla de ruedas y accesibilidad <span lang="ja">車いす・移動</span></h3>
+<div class="grid">
+<button type="button" class="phrase" id="levantar"><span class="ja" lang="ja">私を持ち上げる前に、やり方を確認させてください。</span><span class="es">Antes de levantarme o moverme, déjeme explicarle cómo hacerlo.</span><span class="romaji">Watashi o mochiageru mae ni, yarikata o kakunin sasete kudasai.</span></button>
+</div>
+</section>
+<section class="category">
+<h3>Básicos <span lang="ja">基本</span></h3>
+<div class="grid">
+<button type="button" class="phrase" id="pare"><span class="ja" lang="ja">やめてください！</span><span class="es">¡Pare, por favor!</span><span class="romaji">Yamete kudasai!</span></button>
+</div>
+</section>
+</section>
+
+<section class="more">
+<h2>Más frases <span lang="ja">その他のお願い</span></h2>
+<section class="category">
+<h3>Para empezar <span lang="ja">はじめに</span></h3>
+<div class="grid">
+<button type="button" class="phrase" id="traductor"><span class="ja" lang="ja">スマートフォンの翻訳アプリで、スペイン語に訳してください。</span><span class="es">Por favor, use el traductor de su teléfono para traducir al español.</span><span class="romaji">Sumātofon no hon'yaku apuri de, Supeingo ni yakushite kudasai.</span></button>
+<button type="button" class="phrase" id="manos"><span class="ja" lang="ja">手が使えません。</span><span class="es">No puedo usar las manos.</span><span class="romaji">Te ga tsukaemasen.</span></button>
+<button type="button" class="phrase" id="acompanante"><span class="ja" lang="ja">私の付き添いの人を呼んでもらえますか。</span><span class="es">¿Puede llamar a mi acompañante?</span><span class="romaji">Watashi no tsukisoi no hito o yonde moraemasu ka.</span></button>
+</div>
+</section>
+<section class="category">
+<h3>Emergencias <span lang="ja">緊急</span></h3>
+<div class="grid">
+<button type="button" class="phrase" id="medico"><span class="ja" lang="ja">医者が必要です。</span><span class="es">Necesito un médico.</span><span class="romaji">Isha ga hitsuyō desu.</span></button>
+<button type="button" class="phrase" id="tos"><span class="ja" lang="ja">咳をするのを手伝ってください。私が咳をするときに、お腹を押してください。</span><span class="es">Ayúdeme a toser: empuje mi abdomen cuando yo tosa.</span><span class="romaji">Seki o suru no o tetsudatte kudasai. Watashi ga seki o suru toki ni, onaka o oshite kudasai.</span></button>
+<button type="button" class="phrase" id="policia"><span class="ja" lang="ja">警察を呼んでください。</span><span class="es">Llame a la policía, por favor.</span><span class="romaji">Keisatsu o yonde kudasai.</span></button>
+<button type="button" class="phrase" id="embajada"><span class="ja" lang="ja">私の国の大使館に連絡してください。</span><span class="es">Contacte a la embajada de mi país.</span><span class="romaji">Watashi no kuni no taishikan ni renraku shite kudasai.</span></button>
+</div>
+</section>
+<section class="category">
+<h3>Salud <span lang="ja">体調</span></h3>
+<div class="grid">
+<button type="button" class="phrase" id="me-lastima"><span class="ja" lang="ja">痛いです！</span><span class="es">¡Me está lastimando!</span><span class="romaji">Itai desu!</span></button>
+<button type="button" class="phrase" id="mareo"><span class="ja" lang="ja">めまいがします。</span><span class="es">Estoy mareado.</span><span class="romaji">Memai ga shimasu.</span></button>
+<button type="button" class="phrase" id="fiebre"><span class="ja" lang="ja">熱があります。</span><span class="es">Tengo fiebre.</span><span class="romaji">Netsu ga arimasu.</span></button>
+<button type="button" class="phrase" id="frio"><span class="ja" lang="ja">とても寒いです。自分で体温を調節できません。</span><span class="es">Tengo mucho frío; mi cuerpo no regula la temperatura.</span><span class="romaji">Totemo samui desu. Jibun de taion o chōsetsu dekimasen.</span></button>
+<button type="button" class="phrase" id="manta"><span class="ja" lang="ja">毛布をかけてもらえますか。</span><span class="es">¿Me puede poner una cobija?</span><span class="romaji">Mōfu o kakete moraemasu ka.</span></button>
+<button type="button" class="phrase" id="lugar-fresco"><span class="ja" lang="ja">日陰か涼しい場所に連れて行ってください。</span><span class="es">Lléveme a la sombra o a un lugar fresco.</span><span class="romaji">Hikage ka suzushii basho ni tsurete itte kudasai.</span></button>
+<button type="button" class="phrase" id="enfriar"><span class="ja" lang="ja">首やわきの下を冷たいもので冷やしてください。</span><span class="es">Enfríeme el cuello y las axilas con algo frío.</span><span class="romaji">Kubi ya waki no shita o tsumetai mono de hiyashite kudasai.</span></button>
+<button type="button" class="phrase" id="ulcera"><span class="ja" lang="ja">床ずれ（褥瘡）ができていないか、皮膚を見てください。</span><span class="es">Revise mi piel: puede haber una úlcera por presión.</span><span class="romaji">Tokozure (jokusō) ga dekite inai ka, hifu o mite kudasai.</span></button>
+<button type="button" class="phrase" id="no-siento"><span class="ja" lang="ja">首から下は痛みを感じません。</span><span class="es">No siento dolor del cuello para abajo.</span><span class="romaji">Kubi kara shita wa itami o kanjimasen.</span></button>
+<button type="button" class="phrase" id="nauseas"><span class="ja" lang="ja">吐き気がします。</span><span class="es">Tengo náuseas.</span><span class="romaji">Hakike ga shimasu.</span></button>
+<button type="button" class="phrase" id="espasmos"><span class="ja" lang="ja">筋肉のけいれん（痙縮）が起きています。</span><span class="es">Tengo espasmos musculares.</span><span class="romaji">Kinniku no keiren (keishuku) ga okite imasu.</span></button>
+</div>
+</section>
+<section class="category">
+<h3>Cuidado personal <span lang="ja">身の回りのこと</span></h3>
+<div class="grid">
+<button type="button" class="phrase" id="cambiar-posicion"><span class="ja" lang="ja">体の向きを変えてください。</span><span class="es">Por favor, cámbieme de posición.</span><span class="romaji">Karada no muki o kaete kudasai.</span></button>
+<button type="button" class="phrase" id="acomodar-silla"><span class="ja" lang="ja">車いすからずり落ちそうです。座り直すのを手伝ってください。</span><span class="es">Me estoy resbalando de la silla: ayúdeme a acomodarme.</span><span class="romaji">Kurumaisu kara zuriochisō desu. Suwarinaosu no o tetsudatte kudasai.</span></button>
+<button type="button" class="phrase" id="cabeza"><span class="ja" lang="ja">頭を少し上げてください。</span><span class="es">Levánteme un poco la cabeza.</span><span class="romaji">Atama o sukoshi agete kudasai.</span></button>
+<button type="button" class="phrase" id="brazo"><span class="ja" lang="ja">腕が落ちてしまいました。元の位置に戻してください。</span><span class="es">Se me cayó el brazo; póngalo en su lugar, por favor.</span><span class="romaji">Ude ga ochite shimaimashita. Moto no ichi ni modoshite kudasai.</span></button>
+<button type="button" class="phrase" id="pierna"><span class="ja" lang="ja">足の位置を直してください。</span><span class="es">Acomode mi pierna, por favor.</span><span class="romaji">Ashi no ichi o naoshite kudasai.</span></button>
+<button type="button" class="phrase" id="beber"><span class="ja" lang="ja">のどが渇きました。水を飲むのを手伝ってもらえますか。</span><span class="es">Tengo sed. ¿Me ayuda a tomar agua?</span><span class="romaji">Nodo ga kawakimashita. Mizu o nomu no o tetsudatte moraemasu ka.</span></button>
+<button type="button" class="phrase" id="pajilla"><span class="ja" lang="ja">ストローはありますか。</span><span class="es">¿Tiene una pajilla?</span><span class="romaji">Sutorō wa arimasu ka.</span></button>
+<button type="button" class="phrase" id="comer"><span class="ja" lang="ja">食べるのを手伝ってもらえますか。</span><span class="es">¿Me ayuda a comer, por favor?</span><span class="romaji">Taberu no o tetsudatte moraemasu ka.</span></button>
+<button type="button" class="phrase" id="cortar-comida"><span class="ja" lang="ja">食べ物を小さく切ってもらえますか。</span><span class="es">¿Puede cortarme la comida en pedazos pequeños?</span><span class="romaji">Tabemono o chiisaku kitte moraemasu ka.</span></button>
+<button type="button" class="phrase" id="limpiar-boca"><span class="ja" lang="ja">口をふいてもらえますか。</span><span class="es">¿Me limpia la boca, por favor?</span><span class="romaji">Kuchi o fuite moraemasu ka.</span></button>
+<button type="button" class="phrase" id="picazon"><span class="ja" lang="ja">顔がかゆいです。かいてもらえますか。</span><span class="es">Me pica la cara; ¿me puede rascar?</span><span class="romaji">Kao ga kayui desu. Kaite moraemasu ka.</span></button>
+<button type="button" class="phrase" id="telefono"><span class="ja" lang="ja">スマートフォンを私の顔の前に持ってきてもらえますか。</span><span class="es">¿Me pone el teléfono frente a la cara?</span><span class="romaji">Sumātofon o watashi no kao no mae ni motte kite moraemasu ka.</span></button>
+<button type="button" class="phrase" id="cargar-telefono"><span class="ja" lang="ja">スマートフォンを充電器につないでもらえますか。</span><span class="es">¿Puede conectar mi teléfono al cargador?</span><span class="romaji">Sumātofon o jūdenki ni tsunaide moraemasu ka.</span></button>
+<button type="button" class="phrase" id="nariz"><span class="ja" lang="ja">鼻をかむのを手伝ってもらえますか。</span><span class="es">¿Me ayuda a sonarme la nariz?</span><span class="romaji">Hana o kamu no o tetsudatte moraemasu ka.</span></button>
+<button type="button" class="phrase" id="abrigo"><span class="ja" lang="ja">上着を着るのを手伝ってもらえますか。</span><span class="es">¿Me ayuda a ponerme la chaqueta?</span><span class="romaji">Uwagi o kiru no o tetsudatte moraemasu ka.</span></button>
+</div>
+</section>
+<section class="category">
+<h3>Baño <span lang="ja">トイレ</span></h3>
+<div class="grid">
+<button type="button" class="phrase" id="bano-accesible"><span class="ja" lang="ja">車いす用のトイレ（多目的トイレ）はどこですか。</span><span class="es">¿Dónde hay un baño para silla de ruedas?</span><span class="romaji">Kurumaisu-yō no toire (tamokuteki toire) wa doko desu ka.</span></button>
+<button type="button" class="phrase" id="cateterismo"><span class="ja" lang="ja">導尿をしたいので、人のいない場所を貸してもらえますか。</span><span class="es">Necesito un lugar privado para hacerme el cateterismo.</span><span class="romaji">Dōnyō o shitai node, hito no inai basho o kashite moraemasu ka.</span></button>
+<button type="button" class="phrase" id="incontinencia"><span class="ja" lang="ja">失禁してしまいました。助けてください。</span><span class="es">Tuve un accidente (me ensucié). Necesito ayuda.</span><span class="romaji">Shikkin shite shimaimashita. Tasukete kudasai.</span></button>
+<button type="button" class="phrase" id="panal"><span class="ja" lang="ja">おむつを替えてもらえますか。</span><span class="es">¿Me pueden cambiar el pañal?</span><span class="romaji">Omutsu o kaete moraemasu ka.</span></button>
+</div>
+</section>
+<section class="category">
+<h3>Silla de ruedas y accesibilidad <span lang="ja">車いす・移動</span></h3>
+<div class="grid">
+<button type="button" class="phrase" id="empujar"><span class="ja" lang="ja">車いすを押してもらえますか。</span><span class="es">¿Puede empujar mi silla de ruedas?</span><span class="romaji">Kurumaisu o oshite moraemasu ka.</span></button>
+<button type="button" class="phrase" id="ascensor"><span class="ja" lang="ja">エレベーターはどこですか。</span><span class="es">¿Dónde está el ascensor?</span><span class="romaji">Erebētā wa doko desu ka.</span></button>
+<button type="button" class="phrase" id="boton-ascensor"><span class="ja" lang="ja">エレベーターのボタンを押してもらえますか。</span><span class="es">¿Puede presionar el botón del ascensor?</span><span class="romaji">Erebētā no botan o oshite moraemasu ka.</span></button>
+<button type="button" class="phrase" id="rampa"><span class="ja" lang="ja">スロープか、段差のない入口はありますか。</span><span class="es">¿Hay una rampa o una entrada sin escalones?</span><span class="romaji">Surōpu ka, dansa no nai iriguchi wa arimasu ka.</span></button>
+<button type="button" class="phrase" id="escaleras"><span class="ja" lang="ja">階段や段差は上がれません。</span><span class="es">No puedo subir escaleras ni escalones.</span><span class="romaji">Kaidan ya dansa wa agaremasen.</span></button>
+<button type="button" class="phrase" id="puerta"><span class="ja" lang="ja">ドアを開けてもらえますか。</span><span class="es">¿Puede abrirme la puerta?</span><span class="romaji">Doa o akete moraemasu ka.</span></button>
+<button type="button" class="phrase" id="transferencia"><span class="ja" lang="ja">車いすからベッドに移るのに、二人の手伝いが必要です。</span><span class="es">Para pasarme de la silla a la cama necesito dos personas.</span><span class="romaji">Kurumaisu kara beddo ni utsuru no ni, futari no tetsudai ga hitsuyō desu.</span></button>
+<button type="button" class="phrase" id="bateria-silla"><span class="ja" lang="ja">電動車いすを充電したいです。コンセントはありますか。</span><span class="es">Necesito cargar mi silla eléctrica. ¿Hay un enchufe?</span><span class="romaji">Dendō kurumaisu o jūden shitai desu. Konsento wa arimasu ka.</span></button>
+<button type="button" class="phrase" id="silla-rota"><span class="ja" lang="ja">車いすが壊れました。</span><span class="es">Mi silla de ruedas se dañó.</span><span class="romaji">Kurumaisu ga kowaremashita.</span></button>
+</div>
+</section>
+<section class="category">
+<h3>Transporte y lugares <span lang="ja">交通・場所</span></h3>
+<div class="grid">
+<button type="button" class="phrase" id="tren"><span class="ja" lang="ja">電車に乗るのを手伝ってください。スロープが必要です。</span><span class="es">Necesito ayuda para subir al tren; necesito la rampa.</span><span class="romaji">Densha ni noru no o tetsudatte kudasai. Surōpu ga hitsuyō desu.</span></button>
+<button type="button" class="phrase" id="avisar-estacion"><span class="ja" lang="ja">降りる駅にも連絡してもらえますか。</span><span class="es">¿Puede avisar a la estación donde me bajo?</span><span class="romaji">Oriru eki ni mo renraku shite moraemasu ka.</span></button>
+<button type="button" class="phrase" id="taxi"><span class="ja" lang="ja">車いすのまま乗れるタクシーを呼んでください。</span><span class="es">Necesito un taxi para silla de ruedas.</span><span class="romaji">Kurumaisu no mama noreru takushī o yonde kudasai.</span></button>
+<button type="button" class="phrase" id="hotel"><span class="ja" lang="ja">ホテルに戻りたいです。住所はこのカードに書いてあります。</span><span class="es">Quiero volver a mi hotel; la dirección está en mi tarjeta.</span><span class="romaji">Hoteru ni modoritai desu. Jūsho wa kono kādo ni kaite arimasu.</span></button>
+<button type="button" class="phrase" id="perdido"><span class="ja" lang="ja">道に迷いました。</span><span class="es">Me perdí.</span><span class="romaji">Michi ni mayoimashita.</span></button>
+<button type="button" class="phrase" id="farmacia"><span class="ja" lang="ja">薬局はどこですか。</span><span class="es">¿Dónde hay una farmacia?</span><span class="romaji">Yakkyoku wa doko desu ka.</span></button>
+<button type="button" class="phrase" id="pagar"><span class="ja" lang="ja">財布はかばんの中にあります。支払いのために取り出してもらえますか。</span><span class="es">Mi billetera está en mi bolso; ¿puede sacarla para pagar?</span><span class="romaji">Saifu wa kaban no naka ni arimasu. Shiharai no tame ni toridashite moraemasu ka.</span></button>
+<button type="button" class="phrase" id="wifi"><span class="ja" lang="ja">Wi-Fiはありますか。</span><span class="es">¿Hay wifi?</span><span class="romaji">Waifai wa arimasu ka.</span></button>
+<button type="button" class="phrase" id="mesa"><span class="ja" lang="ja">車いすのまま使えるテーブルはありますか。</span><span class="es">¿Hay una mesa donde quepa la silla de ruedas?</span><span class="romaji">Kurumaisu no mama tsukaeru tēburu wa arimasu ka.</span></button>
+</div>
+</section>
+<section class="category">
+<h3>Comunicación <span lang="ja">コミュニケーション</span></h3>
+<div class="grid">
+<button type="button" class="phrase" id="espere"><span class="ja" lang="ja">少々お待ちください。</span><span class="es">Espere un momento, por favor.</span><span class="romaji">Shōshō omachi kudasai.</span></button>
+<button type="button" class="phrase" id="no-entiendo"><span class="ja" lang="ja">わかりません。</span><span class="es">No entiendo.</span><span class="romaji">Wakarimasen.</span></button>
+<button type="button" class="phrase" id="ingles"><span class="ja" lang="ja">英語かスペイン語を話せる人はいますか。</span><span class="es">¿Alguien habla inglés o español?</span><span class="romaji">Eigo ka Supeingo o hanaseru hito wa imasu ka.</span></button>
+</div>
+</section>
+<section class="category">
+<h3>Básicos <span lang="ja">基本</span></h3>
+<div class="grid">
+<button type="button" class="phrase" id="gracias"><span class="ja" lang="ja">ありがとうございます。</span><span class="es">Muchas gracias.</span><span class="romaji">Arigatō gozaimasu.</span></button>
+<button type="button" class="phrase" id="disculpe"><span class="ja" lang="ja">すみません。</span><span class="es">Disculpe.</span><span class="romaji">Sumimasen.</span></button>
+<button type="button" class="phrase" id="si"><span class="ja" lang="ja">はい。</span><span class="es">Sí.</span><span class="romaji">Hai.</span></button>
+<button type="button" class="phrase" id="no"><span class="ja" lang="ja">いいえ。</span><span class="es">No.</span><span class="romaji">Iie.</span></button>
+<button type="button" class="phrase" id="despacio"><span class="ja" lang="ja">ゆっくりお願いします。</span><span class="es">Más despacio, por favor.</span><span class="romaji">Yukkuri onegai shimasu.</span></button>
+<button type="button" class="phrase" id="estoy-bien"><span class="ja" lang="ja">大丈夫です。ありがとうございます。</span><span class="es">Estoy bien, gracias.</span><span class="romaji">Daijōbu desu. Arigatō gozaimasu.</span></button>
+</div>
+</section>
+</section>
+
+<footer>
+<p>Pronunciación: ō y ū son vocales largas. Las frases médicas no reemplazan las indicaciones de su médico.</p>
+</footer>
+
+<div id="zoom" hidden role="dialog" aria-modal="true" aria-label="Frase en grande">
+<p class="ja" lang="ja"></p>
+<p class="es"></p>
+<button type="button" class="speak" hidden>🔊 Escuchar en japonés</button>
+<p class="close">Toque en cualquier lugar para cerrar</p>
+</div>
+
+<script>
+(() => {
+  const zoom = document.getElementById("zoom");
+  const zoomJa = zoom.querySelector(".ja");
+  const zoomEs = zoom.querySelector(".es");
+  const speakButton = zoom.querySelector(".speak");
+  const synth = "speechSynthesis" in window ? window.speechSynthesis : null;
+
+  // Preferimos una voz local: una voz de red no funciona sin internet.
+  function japaneseVoice() {
+    if (!synth) return null;
+    const voices = synth.getVoices().filter((v) => v.lang.replace("_", "-").toLowerCase().startsWith("ja"));
+    return voices.find((v) => v.localService) || voices[0] || null;
+  }
+
+  function open(phrase) {
+    zoomJa.textContent = phrase.querySelector(".ja").textContent;
+    zoomEs.textContent = phrase.querySelector(".es").textContent;
+    speakButton.hidden = !japaneseVoice();
+    zoom.hidden = false;
+  }
+
+  function close() {
+    if (synth) synth.cancel();
+    zoom.hidden = true;
+  }
+
+  document.addEventListener("click", (event) => {
+    const phrase = event.target.closest(".phrase");
+    if (phrase) open(phrase);
+  });
+
+  zoom.addEventListener("click", (event) => {
+    if (event.target.closest(".speak")) {
+      const utterance = new SpeechSynthesisUtterance(zoomJa.textContent);
+      utterance.lang = "ja-JP";
+      const voice = japaneseVoice();
+      if (voice) utterance.voice = voice;
+      synth.cancel();
+      synth.speak(utterance);
+      return;
+    }
+    close();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !zoom.hidden) close();
+  });
+
+  // Las voces cargan de forma asíncrona en varios navegadores.
+  if (synth) {
+    synth.addEventListener("voiceschanged", () => {
+      if (!zoom.hidden) speakButton.hidden = !japaneseVoice();
+    });
+  }
+})();
+</script>
+</body>
+</html>

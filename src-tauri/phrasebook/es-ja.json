@@ -1,0 +1,862 @@
+{
+  "version": 1,
+  "categories": [
+    { "id": "inicio", "es": "Para empezar", "ja": "はじめに" },
+    { "id": "urgencia", "es": "Emergencias", "ja": "緊急" },
+    { "id": "salud", "es": "Salud", "ja": "体調" },
+    { "id": "cuidado", "es": "Cuidado personal", "ja": "身の回りのこと" },
+    { "id": "bano", "es": "Baño", "ja": "トイレ" },
+    { "id": "movilidad", "es": "Silla de ruedas y accesibilidad", "ja": "車いす・移動" },
+    { "id": "lugares", "es": "Transporte y lugares", "ja": "交通・場所" },
+    { "id": "comunicacion", "es": "Comunicación", "ja": "コミュニケーション" },
+    { "id": "basicos", "es": "Básicos", "ja": "基本" }
+  ],
+  "phrases": [
+    {
+      "id": "tetraplejia",
+      "category": "inicio",
+      "priority": 1,
+      "es": "Tengo tetraplejia por una lesión en la médula cervical: no puedo mover el cuerpo del cuello para abajo.",
+      "ja": "頸髄損傷による四肢麻痺で、首から下が動きません。",
+      "romaji": "Keizui sonshō ni yoru shishi mahi de, kubi kara shita ga ugokimasen.",
+      "triggers": ["tetraplej*", "cuadriplej*", "paraliz*", "cuello abajo", "no puedo mov*", "lesión médula"]
+    },
+    {
+      "id": "ayuda",
+      "category": "inicio",
+      "priority": 1,
+      "es": "Disculpe, ¿me puede ayudar?",
+      "ja": "すみません、手伝っていただけますか。",
+      "romaji": "Sumimasen, tetsudatte itadakemasu ka.",
+      "triggers": ["ayud*", "=necesito ayuda", "=necesito ayuda por favor", "=ayúdeme por favor"]
+    },
+    {
+      "id": "lea-pantalla",
+      "category": "inicio",
+      "priority": 1,
+      "es": "Por favor, lea esta pantalla.",
+      "ja": "この画面を読んでください。",
+      "romaji": "Kono gamen o yonde kudasai.",
+      "triggers": ["lea", "léame", "leer", "pantalla"]
+    },
+    {
+      "id": "no-hablo-japones",
+      "category": "inicio",
+      "priority": 1,
+      "es": "No hablo japonés. Hablo español.",
+      "ja": "日本語が話せません。スペイン語を話します。",
+      "romaji": "Nihongo ga hanasemasen. Supeingo o hanashimasu.",
+      "triggers": ["japonés", "no hablo", "hablo español"]
+    },
+    {
+      "id": "responda-si-no",
+      "category": "inicio",
+      "priority": 1,
+      "es": "Por favor, respóndame con «sí» o «no» (moviendo la cabeza).",
+      "ja": "「はい」か「いいえ」で答えてください。",
+      "romaji": "“Hai” ka “iie” de kotaete kudasai.",
+      "triggers": ["respond*", "contést*", "sí o no"]
+    },
+    {
+      "id": "traductor",
+      "category": "inicio",
+      "priority": 2,
+      "es": "Por favor, use el traductor de su teléfono para traducir al español.",
+      "ja": "スマートフォンの翻訳アプリで、スペイン語に訳してください。",
+      "romaji": "Sumātofon no hon'yaku apuri de, Supeingo ni yakushite kudasai.",
+      "triggers": ["traductor", "tradu*", "traductor teléfono", "traductor celular"]
+    },
+    {
+      "id": "manos",
+      "category": "inicio",
+      "priority": 2,
+      "es": "No puedo usar las manos.",
+      "ja": "手が使えません。",
+      "romaji": "Te ga tsukaemasen.",
+      "triggers": ["manos", "no puedo usar"]
+    },
+    {
+      "id": "acompanante",
+      "category": "inicio",
+      "priority": 2,
+      "es": "¿Puede llamar a mi acompañante?",
+      "ja": "私の付き添いの人を呼んでもらえますか。",
+      "romaji": "Watashi no tsukisoi no hito o yonde moraemasu ka.",
+      "triggers": ["acompañante", "cuidador*", "asistente"]
+    },
+    {
+      "id": "socorro",
+      "category": "urgencia",
+      "priority": 1,
+      "es": "¡Auxilio! ¡Ayúdenme!",
+      "ja": "助けて！",
+      "romaji": "Tasukete!",
+      "triggers": ["auxilio", "socorro", "=ayuda", "=ayúdenme", "=ayuda ayuda"]
+    },
+    {
+      "id": "ambulancia",
+      "category": "urgencia",
+      "priority": 1,
+      "es": "Llame a una ambulancia, por favor.",
+      "ja": "救急車を呼んでください。",
+      "romaji": "Kyūkyūsha o yonde kudasai.",
+      "triggers": ["ambulancia", "119", "ciento diecinueve"]
+    },
+    {
+      "id": "emergencia",
+      "category": "urgencia",
+      "priority": 1,
+      "es": "¡Es una emergencia!",
+      "ja": "緊急です！",
+      "romaji": "Kinkyū desu!",
+      "triggers": ["emergencia", "urgencia", "urgente"]
+    },
+    {
+      "id": "medico",
+      "category": "urgencia",
+      "priority": 2,
+      "es": "Necesito un médico.",
+      "ja": "医者が必要です。",
+      "romaji": "Isha ga hitsuyō desu.",
+      "triggers": ["médico", "doctor*"]
+    },
+    {
+      "id": "respirar",
+      "category": "urgencia",
+      "priority": 1,
+      "es": "Me cuesta respirar.",
+      "ja": "息が苦しいです。",
+      "romaji": "Iki ga kurushii desu.",
+      "triggers": ["respir*", "ahog*", "asfixi*"]
+    },
+    {
+      "id": "tos",
+      "category": "urgencia",
+      "priority": 2,
+      "es": "Ayúdeme a toser: empuje mi abdomen cuando yo tosa.",
+      "ja": "咳をするのを手伝ってください。私が咳をするときに、お腹を押してください。",
+      "romaji": "Seki o suru no o tetsudatte kudasai. Watashi ga seki o suru toki ni, onaka o oshite kudasai.",
+      "triggers": ["tos", "toser", "tosa", "flema", "flemas"]
+    },
+    {
+      "id": "disreflexia",
+      "category": "urgencia",
+      "priority": 1,
+      "es": "Puede ser disreflexia autonómica: la presión sube de golpe y es peligroso.",
+      "ja": "自律神経過反射かもしれません。血圧が急に上がる、命にかかわる状態です。",
+      "romaji": "Jiritsu shinkei kahansha kamo shiremasen. Ketsuatsu ga kyū ni agaru, inochi ni kakawaru jōtai desu.",
+      "triggers": ["disreflexia", "reflexia", "hiperreflexia", "autonómic*", "presión alta", "presión sube"]
+    },
+    {
+      "id": "sentarme",
+      "category": "urgencia",
+      "priority": 1,
+      "es": "Siénteme derecho de inmediato y bájeme las piernas.",
+      "ja": "すぐに上半身を起こして、足を下ろしてください。",
+      "romaji": "Sugu ni jōhanshin o okoshite, ashi o oroshite kudasai.",
+      "triggers": ["siénteme", "sentar*", "incorpor*", "baje piernas", "bájeme piernas"]
+    },
+    {
+      "id": "aflojar-ropa",
+      "category": "urgencia",
+      "priority": 1,
+      "es": "Afloje mi ropa, el cinturón y los zapatos.",
+      "ja": "服、ベルト、靴をゆるめてください。",
+      "romaji": "Fuku, beruto, kutsu o yurumete kudasai.",
+      "triggers": ["afloj*", "cinturón", "apretad*"]
+    },
+    {
+      "id": "revisar-sonda",
+      "category": "urgencia",
+      "priority": 1,
+      "es": "Revise si la sonda de orina está doblada o si la bolsa está llena.",
+      "ja": "尿カテーテルが折れ曲がっていないか、尿バッグがいっぱいになっていないか確認してください。",
+      "romaji": "Nyō katēteru ga oremagatte inai ka, nyō baggu ga ippai ni natte inai ka kakunin shite kudasai.",
+      "triggers": ["sonda", "revise sonda", "sonda doblada", "catéter doblado"]
+    },
+    {
+      "id": "presion",
+      "category": "urgencia",
+      "priority": 1,
+      "es": "Por favor, tómeme la presión arterial.",
+      "ja": "血圧を測ってください。",
+      "romaji": "Ketsuatsu o hakatte kudasai.",
+      "triggers": ["presión", "presión arterial", "tómeme presión", "tomar presión", "medir presión"]
+    },
+    {
+      "id": "policia",
+      "category": "urgencia",
+      "priority": 2,
+      "es": "Llame a la policía, por favor.",
+      "ja": "警察を呼んでください。",
+      "romaji": "Keisatsu o yonde kudasai.",
+      "triggers": ["policía", "110", "ciento diez"]
+    },
+    {
+      "id": "hospital",
+      "category": "urgencia",
+      "priority": 1,
+      "es": "Lléveme a un hospital, por favor.",
+      "ja": "病院に連れて行ってください。",
+      "romaji": "Byōin ni tsurete itte kudasai.",
+      "triggers": ["hospital", "clínica"]
+    },
+    {
+      "id": "no-me-deje",
+      "category": "urgencia",
+      "priority": 1,
+      "es": "Por favor, no me deje solo.",
+      "ja": "一人にしないでください。",
+      "romaji": "Hitori ni shinaide kudasai.",
+      "triggers": ["no me deje", "deje solo", "deje sola", "no se vaya"]
+    },
+    {
+      "id": "caida",
+      "category": "urgencia",
+      "priority": 1,
+      "es": "Me caí de la silla de ruedas.",
+      "ja": "車いすから落ちました。",
+      "romaji": "Kurumaisu kara ochimashita.",
+      "triggers": ["caí", "caída", "caí silla"]
+    },
+    {
+      "id": "cuello",
+      "category": "urgencia",
+      "priority": 1,
+      "es": "Cuidado con mi cuello: sosténgalo al moverme.",
+      "ja": "首に気をつけて、支えながら動かしてください。",
+      "romaji": "Kubi ni ki o tsukete, sasae nagara ugokashite kudasai.",
+      "triggers": ["cuello", "cuidado cuello", "sostenga cuello"]
+    },
+    {
+      "id": "evacuar",
+      "category": "urgencia",
+      "priority": 1,
+      "es": "Ayúdeme a evacuar: no puedo usar escaleras. ¿Dónde está el refugio?",
+      "ja": "避難を手伝ってください。私は階段が使えません。避難場所はどこですか。",
+      "romaji": "Hinan o tetsudatte kudasai. Watashi wa kaidan ga tsukaemasen. Hinan basho wa doko desu ka.",
+      "triggers": ["evacu*", "refugio", "terremoto", "temblor", "sismo", "tsunami", "incendio"]
+    },
+    {
+      "id": "contacto-emergencia",
+      "category": "urgencia",
+      "priority": 1,
+      "es": "Llame a mi contacto de emergencia; el número está en mi tarjeta.",
+      "ja": "緊急連絡先に電話してください。番号はこのカードに書いてあります。",
+      "romaji": "Kinkyū renrakusaki ni denwa shite kudasai. Bangō wa kono kādo ni kaite arimasu.",
+      "triggers": ["contacto emergencia", "familia", "familiar*", "llame número", "este número"]
+    },
+    {
+      "id": "embajada",
+      "category": "urgencia",
+      "priority": 3,
+      "es": "Contacte a la embajada de mi país.",
+      "ja": "私の国の大使館に連絡してください。",
+      "romaji": "Watashi no kuni no taishikan ni renraku shite kudasai.",
+      "triggers": ["embajada", "consulado"]
+    },
+    {
+      "id": "dolor",
+      "category": "salud",
+      "priority": 1,
+      "es": "Tengo dolor.",
+      "ja": "痛みがあります。",
+      "romaji": "Itami ga arimasu.",
+      "triggers": ["dolor", "duele", "duelen", "doliendo"]
+    },
+    {
+      "id": "me-lastima",
+      "category": "salud",
+      "priority": 2,
+      "es": "¡Me está lastimando!",
+      "ja": "痛いです！",
+      "romaji": "Itai desu!",
+      "triggers": ["lastim*"]
+    },
+    {
+      "id": "dolor-cabeza",
+      "category": "salud",
+      "priority": 1,
+      "es": "Tengo un dolor de cabeza muy fuerte.",
+      "ja": "ひどい頭痛がします。",
+      "romaji": "Hidoi zutsū ga shimasu.",
+      "triggers": ["dolor cabeza", "duele cabeza", "jaqueca", "migraña"]
+    },
+    {
+      "id": "mareo",
+      "category": "salud",
+      "priority": 2,
+      "es": "Estoy mareado.",
+      "ja": "めまいがします。",
+      "romaji": "Memai ga shimasu.",
+      "triggers": ["mare*", "vértigo", "desmay*"]
+    },
+    {
+      "id": "fiebre",
+      "category": "salud",
+      "priority": 2,
+      "es": "Tengo fiebre.",
+      "ja": "熱があります。",
+      "romaji": "Netsu ga arimasu.",
+      "triggers": ["fiebre", "calentura"]
+    },
+    {
+      "id": "frio",
+      "category": "salud",
+      "priority": 2,
+      "es": "Tengo mucho frío; mi cuerpo no regula la temperatura.",
+      "ja": "とても寒いです。自分で体温を調節できません。",
+      "romaji": "Totemo samui desu. Jibun de taion o chōsetsu dekimasen.",
+      "triggers": ["frío", "congel*"]
+    },
+    {
+      "id": "calor",
+      "category": "salud",
+      "priority": 1,
+      "es": "Tengo mucho calor: no puedo sudar y me puede dar un golpe de calor.",
+      "ja": "とても暑いです。汗がかけないので、熱中症になりやすいです。",
+      "romaji": "Totemo atsui desu. Ase ga kakenai node, netchūshō ni nariyasui desu.",
+      "triggers": ["calor", "golpe calor", "sudar", "insolación", "bochorno"]
+    },
+    {
+      "id": "manta",
+      "category": "salud",
+      "priority": 2,
+      "es": "¿Me puede poner una cobija?",
+      "ja": "毛布をかけてもらえますか。",
+      "romaji": "Mōfu o kakete moraemasu ka.",
+      "triggers": ["cobija", "manta", "frazada", "cobertor"]
+    },
+    {
+      "id": "lugar-fresco",
+      "category": "salud",
+      "priority": 2,
+      "es": "Lléveme a la sombra o a un lugar fresco.",
+      "ja": "日陰か涼しい場所に連れて行ってください。",
+      "romaji": "Hikage ka suzushii basho ni tsurete itte kudasai.",
+      "triggers": ["sombra", "lugar fresco", "aire acondicionado"]
+    },
+    {
+      "id": "enfriar",
+      "category": "salud",
+      "priority": 2,
+      "es": "Enfríeme el cuello y las axilas con algo frío.",
+      "ja": "首やわきの下を冷たいもので冷やしてください。",
+      "romaji": "Kubi ya waki no shita o tsumetai mono de hiyashite kudasai.",
+      "triggers": ["enfrí*", "axilas", "hielo", "algo frío"]
+    },
+    {
+      "id": "medicina",
+      "category": "salud",
+      "priority": 1,
+      "es": "Es hora de mi medicina. Está en mi bolso; ¿me ayuda a tomarla?",
+      "ja": "薬を飲む時間です。かばんの中の薬を飲ませてもらえますか。",
+      "romaji": "Kusuri o nomu jikan desu. Kaban no naka no kusuri o nomasete moraemasu ka.",
+      "triggers": ["medicina", "medicamento*", "pastilla*", "remedio"]
+    },
+    {
+      "id": "ulcera",
+      "category": "salud",
+      "priority": 2,
+      "es": "Revise mi piel: puede haber una úlcera por presión.",
+      "ja": "床ずれ（褥瘡）ができていないか、皮膚を見てください。",
+      "romaji": "Tokozure (jokusō) ga dekite inai ka, hifu o mite kudasai.",
+      "triggers": ["úlcera", "úlcera presión", "escara", "llaga", "piel"]
+    },
+    {
+      "id": "no-siento",
+      "category": "salud",
+      "priority": 2,
+      "es": "No siento dolor del cuello para abajo.",
+      "ja": "首から下は痛みを感じません。",
+      "romaji": "Kubi kara shita wa itami o kanjimasen.",
+      "triggers": ["no siento", "no siento dolor", "sensibilidad"]
+    },
+    {
+      "id": "nauseas",
+      "category": "salud",
+      "priority": 2,
+      "es": "Tengo náuseas.",
+      "ja": "吐き気がします。",
+      "romaji": "Hakike ga shimasu.",
+      "triggers": ["náusea*", "vomit*", "vómit*", "devolver"]
+    },
+    {
+      "id": "espasmos",
+      "category": "salud",
+      "priority": 2,
+      "es": "Tengo espasmos musculares.",
+      "ja": "筋肉のけいれん（痙縮）が起きています。",
+      "romaji": "Kinniku no keiren (keishuku) ga okite imasu.",
+      "triggers": ["espasmo*", "calambre*"]
+    },
+    {
+      "id": "alergia",
+      "category": "salud",
+      "priority": 1,
+      "es": "Soy alérgico a algunos medicamentos.",
+      "ja": "薬のアレルギーがあります。",
+      "romaji": "Kusuri no arerugī ga arimasu.",
+      "triggers": ["alerg*", "alérgic*"]
+    },
+    {
+      "id": "tarjeta-medica",
+      "category": "salud",
+      "priority": 1,
+      "es": "Mi información médica está en esta tarjeta.",
+      "ja": "私の医療情報はこのカードに書いてあります。",
+      "romaji": "Watashi no iryō jōhō wa kono kādo ni kaite arimasu.",
+      "triggers": ["tarjeta", "información médica", "datos médicos"]
+    },
+    {
+      "id": "cambiar-posicion",
+      "category": "cuidado",
+      "priority": 2,
+      "es": "Por favor, cámbieme de posición.",
+      "ja": "体の向きを変えてください。",
+      "romaji": "Karada no muki o kaete kudasai.",
+      "triggers": ["posición", "cámbieme", "volté*", "voltee*", "darme vuelta"]
+    },
+    {
+      "id": "acomodar-silla",
+      "category": "cuidado",
+      "priority": 2,
+      "es": "Me estoy resbalando de la silla: ayúdeme a acomodarme.",
+      "ja": "車いすからずり落ちそうです。座り直すのを手伝ってください。",
+      "romaji": "Kurumaisu kara zuriochisō desu. Suwarinaosu no o tetsudatte kudasai.",
+      "triggers": ["resbal*", "acomod*", "deslizando"]
+    },
+    {
+      "id": "cabeza",
+      "category": "cuidado",
+      "priority": 2,
+      "es": "Levánteme un poco la cabeza.",
+      "ja": "頭を少し上げてください。",
+      "romaji": "Atama o sukoshi agete kudasai.",
+      "triggers": ["levante cabeza", "levánteme cabeza", "suba cabeza", "almohada"]
+    },
+    {
+      "id": "brazo",
+      "category": "cuidado",
+      "priority": 2,
+      "es": "Se me cayó el brazo; póngalo en su lugar, por favor.",
+      "ja": "腕が落ちてしまいました。元の位置に戻してください。",
+      "romaji": "Ude ga ochite shimaimashita. Moto no ichi ni modoshite kudasai.",
+      "triggers": ["brazo", "mano", "cayó brazo", "acomode brazo"]
+    },
+    {
+      "id": "pierna",
+      "category": "cuidado",
+      "priority": 2,
+      "es": "Acomode mi pierna, por favor.",
+      "ja": "足の位置を直してください。",
+      "romaji": "Ashi no ichi o naoshite kudasai.",
+      "triggers": ["pierna*", "pie", "pies", "acomode pierna"]
+    },
+    {
+      "id": "beber",
+      "category": "cuidado",
+      "priority": 2,
+      "es": "Tengo sed. ¿Me ayuda a tomar agua?",
+      "ja": "のどが渇きました。水を飲むのを手伝ってもらえますか。",
+      "romaji": "Nodo ga kawakimashita. Mizu o nomu no o tetsudatte moraemasu ka.",
+      "triggers": ["sed", "agua", "beber", "tomar agua"]
+    },
+    {
+      "id": "pajilla",
+      "category": "cuidado",
+      "priority": 2,
+      "es": "¿Tiene una pajilla?",
+      "ja": "ストローはありますか。",
+      "romaji": "Sutorō wa arimasu ka.",
+      "triggers": ["pajilla", "pajita", "popote", "sorbete", "carrizo"]
+    },
+    {
+      "id": "comer",
+      "category": "cuidado",
+      "priority": 2,
+      "es": "¿Me ayuda a comer, por favor?",
+      "ja": "食べるのを手伝ってもらえますか。",
+      "romaji": "Taberu no o tetsudatte moraemasu ka.",
+      "triggers": ["comer", "hambre", "comida"]
+    },
+    {
+      "id": "cortar-comida",
+      "category": "cuidado",
+      "priority": 3,
+      "es": "¿Puede cortarme la comida en pedazos pequeños?",
+      "ja": "食べ物を小さく切ってもらえますか。",
+      "romaji": "Tabemono o chiisaku kitte moraemasu ka.",
+      "triggers": ["cort* comida", "pedazos", "pedacitos", "trocitos"]
+    },
+    {
+      "id": "limpiar-boca",
+      "category": "cuidado",
+      "priority": 3,
+      "es": "¿Me limpia la boca, por favor?",
+      "ja": "口をふいてもらえますか。",
+      "romaji": "Kuchi o fuite moraemasu ka.",
+      "triggers": ["boca", "limpi* boca", "servilleta"]
+    },
+    {
+      "id": "picazon",
+      "category": "cuidado",
+      "priority": 2,
+      "es": "Me pica la cara; ¿me puede rascar?",
+      "ja": "顔がかゆいです。かいてもらえますか。",
+      "romaji": "Kao ga kayui desu. Kaite moraemasu ka.",
+      "triggers": ["pica", "picazón", "comezón", "rasc*"]
+    },
+    {
+      "id": "telefono",
+      "category": "cuidado",
+      "priority": 2,
+      "es": "¿Me pone el teléfono frente a la cara?",
+      "ja": "スマートフォンを私の顔の前に持ってきてもらえますか。",
+      "romaji": "Sumātofon o watashi no kao no mae ni motte kite moraemasu ka.",
+      "triggers": ["teléfono", "celular", "móvil"]
+    },
+    {
+      "id": "cargar-telefono",
+      "category": "cuidado",
+      "priority": 2,
+      "es": "¿Puede conectar mi teléfono al cargador?",
+      "ja": "スマートフォンを充電器につないでもらえますか。",
+      "romaji": "Sumātofon o jūdenki ni tsunaide moraemasu ka.",
+      "triggers": ["cargador", "cargar teléfono", "cargar celular", "batería teléfono", "batería celular"]
+    },
+    {
+      "id": "nariz",
+      "category": "cuidado",
+      "priority": 3,
+      "es": "¿Me ayuda a sonarme la nariz?",
+      "ja": "鼻をかむのを手伝ってもらえますか。",
+      "romaji": "Hana o kamu no o tetsudatte moraemasu ka.",
+      "triggers": ["nariz", "sonar* nariz", "pañuelo"]
+    },
+    {
+      "id": "abrigo",
+      "category": "cuidado",
+      "priority": 3,
+      "es": "¿Me ayuda a ponerme la chaqueta?",
+      "ja": "上着を着るのを手伝ってもらえますか。",
+      "romaji": "Uwagi o kiru no o tetsudatte moraemasu ka.",
+      "triggers": ["chaqueta", "abrigo", "suéter", "jacket"]
+    },
+    {
+      "id": "bano",
+      "category": "bano",
+      "priority": 1,
+      "es": "Necesito ir al baño.",
+      "ja": "トイレに行きたいです。",
+      "romaji": "Toire ni ikitai desu.",
+      "triggers": ["baño", "ir baño", "sanitario", "orinar", "pipí"]
+    },
+    {
+      "id": "bano-accesible",
+      "category": "bano",
+      "priority": 2,
+      "es": "¿Dónde hay un baño para silla de ruedas?",
+      "ja": "車いす用のトイレ（多目的トイレ）はどこですか。",
+      "romaji": "Kurumaisu-yō no toire (tamokuteki toire) wa doko desu ka.",
+      "triggers": ["baño accesible", "baño silla", "baño ruedas", "baño discapacit*", "dónde baño"]
+    },
+    {
+      "id": "vaciar-bolsa",
+      "category": "bano",
+      "priority": 1,
+      "es": "¿Puede vaciar mi bolsa de orina?",
+      "ja": "尿バッグを空にしてもらえますか。",
+      "romaji": "Nyō baggu o kara ni shite moraemasu ka.",
+      "triggers": ["vaciar bolsa", "vacíe bolsa", "bolsa orina", "bolsa llena"]
+    },
+    {
+      "id": "cateterismo",
+      "category": "bano",
+      "priority": 2,
+      "es": "Necesito un lugar privado para hacerme el cateterismo.",
+      "ja": "導尿をしたいので、人のいない場所を貸してもらえますか。",
+      "romaji": "Dōnyō o shitai node, hito no inai basho o kashite moraemasu ka.",
+      "triggers": ["cateterismo", "sondear*", "sondaje", "lugar privado"]
+    },
+    {
+      "id": "incontinencia",
+      "category": "bano",
+      "priority": 2,
+      "es": "Tuve un accidente (me ensucié). Necesito ayuda.",
+      "ja": "失禁してしまいました。助けてください。",
+      "romaji": "Shikkin shite shimaimashita. Tasukete kudasai.",
+      "triggers": ["ensucié", "oriné", "accidente", "incontinencia"]
+    },
+    {
+      "id": "panal",
+      "category": "bano",
+      "priority": 3,
+      "es": "¿Me pueden cambiar el pañal?",
+      "ja": "おむつを替えてもらえますか。",
+      "romaji": "Omutsu o kaete moraemasu ka.",
+      "triggers": ["pañal", "pañales"]
+    },
+    {
+      "id": "empujar",
+      "category": "movilidad",
+      "priority": 2,
+      "es": "¿Puede empujar mi silla de ruedas?",
+      "ja": "車いすを押してもらえますか。",
+      "romaji": "Kurumaisu o oshite moraemasu ka.",
+      "triggers": ["empuj*"]
+    },
+    {
+      "id": "ascensor",
+      "category": "movilidad",
+      "priority": 2,
+      "es": "¿Dónde está el ascensor?",
+      "ja": "エレベーターはどこですか。",
+      "romaji": "Erebētā wa doko desu ka.",
+      "triggers": ["ascensor", "elevador"]
+    },
+    {
+      "id": "boton-ascensor",
+      "category": "movilidad",
+      "priority": 2,
+      "es": "¿Puede presionar el botón del ascensor?",
+      "ja": "エレベーターのボタンを押してもらえますか。",
+      "romaji": "Erebētā no botan o oshite moraemasu ka.",
+      "triggers": ["botón", "botón ascensor", "botón elevador", "presion* botón", "piso"]
+    },
+    {
+      "id": "rampa",
+      "category": "movilidad",
+      "priority": 2,
+      "es": "¿Hay una rampa o una entrada sin escalones?",
+      "ja": "スロープか、段差のない入口はありますか。",
+      "romaji": "Surōpu ka, dansa no nai iriguchi wa arimasu ka.",
+      "triggers": ["rampa", "entrada", "sin escalones"]
+    },
+    {
+      "id": "escaleras",
+      "category": "movilidad",
+      "priority": 2,
+      "es": "No puedo subir escaleras ni escalones.",
+      "ja": "階段や段差は上がれません。",
+      "romaji": "Kaidan ya dansa wa agaremasen.",
+      "triggers": ["escalera*", "escalón", "escalones", "gradas"]
+    },
+    {
+      "id": "puerta",
+      "category": "movilidad",
+      "priority": 2,
+      "es": "¿Puede abrirme la puerta?",
+      "ja": "ドアを開けてもらえますか。",
+      "romaji": "Doa o akete moraemasu ka.",
+      "triggers": ["puerta"]
+    },
+    {
+      "id": "levantar",
+      "category": "movilidad",
+      "priority": 1,
+      "es": "Antes de levantarme o moverme, déjeme explicarle cómo hacerlo.",
+      "ja": "私を持ち上げる前に、やり方を確認させてください。",
+      "romaji": "Watashi o mochiageru mae ni, yarikata o kakunin sasete kudasai.",
+      "triggers": ["antes levant*", "no me levant*", "cómo levant*", "explic*"]
+    },
+    {
+      "id": "transferencia",
+      "category": "movilidad",
+      "priority": 2,
+      "es": "Para pasarme de la silla a la cama necesito dos personas.",
+      "ja": "車いすからベッドに移るのに、二人の手伝いが必要です。",
+      "romaji": "Kurumaisu kara beddo ni utsuru no ni, futari no tetsudai ga hitsuyō desu.",
+      "triggers": ["cama", "dos personas", "pasarme", "transferencia"]
+    },
+    {
+      "id": "bateria-silla",
+      "category": "movilidad",
+      "priority": 2,
+      "es": "Necesito cargar mi silla eléctrica. ¿Hay un enchufe?",
+      "ja": "電動車いすを充電したいです。コンセントはありますか。",
+      "romaji": "Dendō kurumaisu o jūden shitai desu. Konsento wa arimasu ka.",
+      "triggers": ["enchufe", "tomacorriente", "batería", "silla eléctrica", "cargar silla", "batería silla"]
+    },
+    {
+      "id": "silla-rota",
+      "category": "movilidad",
+      "priority": 2,
+      "es": "Mi silla de ruedas se dañó.",
+      "ja": "車いすが壊れました。",
+      "romaji": "Kurumaisu ga kowaremashita.",
+      "triggers": ["se dañó", "silla dañó", "silla rota", "silla descompu*", "no funciona", "llanta"]
+    },
+    {
+      "id": "tren",
+      "category": "lugares",
+      "priority": 2,
+      "es": "Necesito ayuda para subir al tren; necesito la rampa.",
+      "ja": "電車に乗るのを手伝ってください。スロープが必要です。",
+      "romaji": "Densha ni noru no o tetsudatte kudasai. Surōpu ga hitsuyō desu.",
+      "triggers": ["tren", "metro", "subir tren", "rampa tren"]
+    },
+    {
+      "id": "avisar-estacion",
+      "category": "lugares",
+      "priority": 2,
+      "es": "¿Puede avisar a la estación donde me bajo?",
+      "ja": "降りる駅にも連絡してもらえますか。",
+      "romaji": "Oriru eki ni mo renraku shite moraemasu ka.",
+      "triggers": ["estación", "me bajo", "bajarme", "avisar estación"]
+    },
+    {
+      "id": "taxi",
+      "category": "lugares",
+      "priority": 2,
+      "es": "Necesito un taxi para silla de ruedas.",
+      "ja": "車いすのまま乗れるタクシーを呼んでください。",
+      "romaji": "Kurumaisu no mama noreru takushī o yonde kudasai.",
+      "triggers": ["taxi"]
+    },
+    {
+      "id": "hotel",
+      "category": "lugares",
+      "priority": 2,
+      "es": "Quiero volver a mi hotel; la dirección está en mi tarjeta.",
+      "ja": "ホテルに戻りたいです。住所はこのカードに書いてあります。",
+      "romaji": "Hoteru ni modoritai desu. Jūsho wa kono kādo ni kaite arimasu.",
+      "triggers": ["hotel", "volver hotel", "dirección"]
+    },
+    {
+      "id": "perdido",
+      "category": "lugares",
+      "priority": 2,
+      "es": "Me perdí.",
+      "ja": "道に迷いました。",
+      "romaji": "Michi ni mayoimashita.",
+      "triggers": ["perdí", "perdido", "perdida"]
+    },
+    {
+      "id": "farmacia",
+      "category": "lugares",
+      "priority": 2,
+      "es": "¿Dónde hay una farmacia?",
+      "ja": "薬局はどこですか。",
+      "romaji": "Yakkyoku wa doko desu ka.",
+      "triggers": ["farmacia", "botica"]
+    },
+    {
+      "id": "pagar",
+      "category": "lugares",
+      "priority": 2,
+      "es": "Mi billetera está en mi bolso; ¿puede sacarla para pagar?",
+      "ja": "財布はかばんの中にあります。支払いのために取り出してもらえますか。",
+      "romaji": "Saifu wa kaban no naka ni arimasu. Shiharai no tame ni toridashite moraemasu ka.",
+      "triggers": ["pagar", "pago", "billetera", "cartera", "dinero", "cuenta"]
+    },
+    {
+      "id": "wifi",
+      "category": "lugares",
+      "priority": 3,
+      "es": "¿Hay wifi?",
+      "ja": "Wi-Fiはありますか。",
+      "romaji": "Waifai wa arimasu ka.",
+      "triggers": ["wifi", "wi fi", "internet"]
+    },
+    {
+      "id": "mesa",
+      "category": "lugares",
+      "priority": 3,
+      "es": "¿Hay una mesa donde quepa la silla de ruedas?",
+      "ja": "車いすのまま使えるテーブルはありますか。",
+      "romaji": "Kurumaisu no mama tsukaeru tēburu wa arimasu ka.",
+      "triggers": ["mesa"]
+    },
+    {
+      "id": "espere",
+      "category": "comunicacion",
+      "priority": 2,
+      "es": "Espere un momento, por favor.",
+      "ja": "少々お待ちください。",
+      "romaji": "Shōshō omachi kudasai.",
+      "triggers": ["espere", "momento"]
+    },
+    {
+      "id": "no-entiendo",
+      "category": "comunicacion",
+      "priority": 2,
+      "es": "No entiendo.",
+      "ja": "わかりません。",
+      "romaji": "Wakarimasen.",
+      "triggers": ["no entiendo", "no comprendo"]
+    },
+    {
+      "id": "ingles",
+      "category": "comunicacion",
+      "priority": 3,
+      "es": "¿Alguien habla inglés o español?",
+      "ja": "英語かスペイン語を話せる人はいますか。",
+      "romaji": "Eigo ka Supeingo o hanaseru hito wa imasu ka.",
+      "triggers": ["inglés", "alguien habla", "habla español"]
+    },
+    {
+      "id": "gracias",
+      "category": "basicos",
+      "priority": 2,
+      "es": "Muchas gracias.",
+      "ja": "ありがとうございます。",
+      "romaji": "Arigatō gozaimasu.",
+      "triggers": ["gracias"]
+    },
+    {
+      "id": "disculpe",
+      "category": "basicos",
+      "priority": 2,
+      "es": "Disculpe.",
+      "ja": "すみません。",
+      "romaji": "Sumimasen.",
+      "triggers": ["disculpe", "perdón", "con permiso", "oiga"]
+    },
+    {
+      "id": "si",
+      "category": "basicos",
+      "priority": 2,
+      "es": "Sí.",
+      "ja": "はい。",
+      "romaji": "Hai.",
+      "triggers": ["=sí por favor", "=claro", "=correcto"]
+    },
+    {
+      "id": "no",
+      "category": "basicos",
+      "priority": 2,
+      "es": "No.",
+      "ja": "いいえ。",
+      "romaji": "Iie.",
+      "triggers": []
+    },
+    {
+      "id": "pare",
+      "category": "basicos",
+      "priority": 1,
+      "es": "¡Pare, por favor!",
+      "ja": "やめてください！",
+      "romaji": "Yamete kudasai!",
+      "triggers": ["pare", "alto", "deténgase", "basta", "stop"]
+    },
+    {
+      "id": "despacio",
+      "category": "basicos",
+      "priority": 2,
+      "es": "Más despacio, por favor.",
+      "ja": "ゆっくりお願いします。",
+      "romaji": "Yukkuri onegai shimasu.",
+      "triggers": ["despacio", "lento", "cuidado"]
+    },
+    {
+      "id": "estoy-bien",
+      "category": "basicos",
+      "priority": 2,
+      "es": "Estoy bien, gracias.",
+      "ja": "大丈夫です。ありがとうございます。",
+      "romaji": "Daijōbu desu. Arigatō gozaimasu.",
+      "triggers": ["estoy bien", "está bien", "=no gracias", "no se preocupe"]
+    }
+  ]
+}
